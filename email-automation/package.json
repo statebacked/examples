@@ -1,0 +1,53 @@
+{
+  "name": "@statebacked/example-email-automation",
+  "version": "0.1.0",
+  "description": "Example of building an email automation flow using StateBacked.dev XState backend as a service",
+  "main": "dist/index.js",
+  "sideEffects": false,
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc --strict --declaration --module commonjs --outDir dist",
+    "prettier": "prettier --write \"src/**/*.ts\"",
+    "lint": "eslint src",
+    "doc": "typedoc"
+  },
+  "files": [
+    "lib/**/*.js",
+    "lib/**/*.d.ts",
+    "es/**/*.js",
+    "es/**/*.d.ts"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/statebacked/token.git"
+  },
+  "keywords": [
+    "statechart",
+    "state machine",
+    "scxml",
+    "state",
+    "finite state machine",
+    "state backed",
+    "backend as a service",
+    "paas"
+  ],
+  "author": "Adam Berger <adam@statebacked.dev>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/statebacked/examples/issues"
+  },
+  "homepage": "https://github.com/statebacked/examples#readme",
+  "devDependencies": {
+    "@types/node": "^20.3.2",
+    "@typescript-eslint/eslint-plugin": "^5.60.1",
+    "@typescript-eslint/parser": "^5.60.1",
+    "eslint": "^8.43.0",
+    "prettier": "^2.8.8",
+    "typedoc": "^0.24.8",
+    "typescript": "^5.1.6"
+  },
+  "dependencies": {
+    "@statebacked/machine-def": "^0.3.5",
+    "xstate": "^4.38.2"
+  }
+}

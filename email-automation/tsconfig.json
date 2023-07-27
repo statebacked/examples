@@ -1,0 +1,7 @@
+{
+    "include": ["src/**/*.ts"],
+    "compilerOptions": {
+        "moduleResolution": "NodeNext",
+        "lib": ["ES2015"]
+    }
+}
