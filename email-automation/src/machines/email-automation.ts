@@ -1,6 +1,6 @@
-import { createMachine, assign } from "xstate";
+import { createMachine, assign, DoneEvent } from "xstate";
 import * as duration from "../duration";
-import { EmailType, sendEmail } from "../emails";
+import { EmailType, sendEmail as _sendEmail } from "../emails";
 
 // machine designed and visualizable here: https://stately.ai/registry/editor/412c119a-b389-4ba1-b3fd-67a618616eab?machineId=0281361a-9034-4334-82aa-cbf9cc185b54
 
@@ -31,6 +31,7 @@ export const emailAutomationMachine = createMachine(
       orgInvitationSent: false,
       orgInvitationAccepted: false,
       orgPlanStatus: null,
+      isSupporter: false,
       userEmail: "",
       sentEmails: [],
     },
@@ -109,6 +110,12 @@ Child states within \`userState\` will update our context to record what the use
                   },
                 },
                 type: "parallel",
+                onDone: {
+                  target: "completedDocument",
+                },
+              },
+              completedDocument: {
+                type: "final",
               },
             },
           },
@@ -206,11 +213,23 @@ Child states within \`userState\` will update our context to record what the use
                   },
                 },
                 type: "parallel",
+                onDone: {
+                  target: "completedDocument",
+                },
+              },
+              completedDocument: {
+                type: "final",
               },
             },
           },
         },
         type: "parallel",
+        onDone: {
+          target: "userIsSupporter",
+        },
+      },
+      userIsSupporter: {
+        entry: assign({ isSupporter: () => true }),
       },
       emailSender: {
         initial: "start",
@@ -232,10 +251,15 @@ Child states within \`userState\` will update our context to record what the use
             invoke: {
               src: "sendEmail",
               id: "sendWelcomeEmail",
-              data: {
-                welcome: true,
-              },
+              onDone: [
+                {
+                  target: "welcomeSent",
+                  actions: "appendToSentEmails",
+                },
+              ],
             },
+          },
+          welcomeSent: {
             after: {
               "1 day": [
                 {
@@ -252,7 +276,15 @@ Child states within \`userState\` will update our context to record what the use
             invoke: {
               src: "sendEmail",
               id: "sendEmail1",
+              onDone: [
+                {
+                  target: "email1Sent",
+                  actions: "appendToSentEmails",
+                },
+              ],
             },
+          },
+          email1Sent: {
             after: {
               "1 day": [
                 {
@@ -269,7 +301,15 @@ Child states within \`userState\` will update our context to record what the use
             invoke: {
               src: "sendEmail",
               id: "sendEmail2",
+              onDone: [
+                {
+                  target: "email2Sent",
+                  actions: "appendToSentEmails",
+                },
+              ],
             },
+          },
+          email2Sent: {
             after: {
               "2 days": [
                 {
@@ -286,7 +326,15 @@ Child states within \`userState\` will update our context to record what the use
             invoke: {
               src: "sendEmail",
               id: "sendEmail3",
+              onDone: [
+                {
+                  target: "email3Sent",
+                  actions: "appendToSentEmails",
+                },
+              ],
             },
+          },
+          email3Sent: {
             after: {
               "3 days": [
                 {
@@ -303,7 +351,15 @@ Child states within \`userState\` will update our context to record what the use
             invoke: {
               src: "sendEmail",
               id: "sendEmail4",
+              onDone: [
+                {
+                  target: "email4Sent",
+                  actions: "appendToSentEmails",
+                },
+              ],
             },
+          },
+          email4Sent: {
             after: {
               "3 days": [
                 {
@@ -320,7 +376,15 @@ Child states within \`userState\` will update our context to record what the use
             invoke: {
               src: "sendEmail",
               id: "sendEmail5",
+              onDone: [
+                {
+                  target: "email5Sent",
+                  actions: "appendToSentEmails",
+                },
+              ],
             },
+          },
+          email5Sent: {
             after: {
               "4 days": [
                 {
@@ -340,6 +404,7 @@ Child states within \`userState\` will update our context to record what the use
               onDone: [
                 {
                   target: "Complete",
+                  actions: "appendToSentEmails",
                 },
               ],
             },
@@ -362,6 +427,7 @@ Child states within \`userState\` will update our context to record what the use
         orgPlanStatus: null | "free" | "trial-ending" | "trial-ended" | "paid";
         userEmail: string;
         sentEmails: Array<EmailType>;
+        isSupporter: boolean;
       },
       events: {} as
         | { type: "createdADocument" }
@@ -376,7 +442,14 @@ Child states within \`userState\` will update our context to record what the use
     preserveActionOrder: true,
   },
   {
-    actions: {},
+    actions: {
+      appendToSentEmails: assign({
+        sentEmails: (ctx, evt) => {
+          const doneEvent = evt as DoneEvent;
+          return ctx.sentEmails.concat(doneEvent.data ? [doneEvent.data] : []);
+        },
+      }),
+    },
     services: {
       sendEmail: async (context, _event, meta) => {
         if (meta.data.welcome) {
@@ -385,9 +458,67 @@ Child states within \`userState\` will update our context to record what the use
 
         const sentEmails = new Set(context.sentEmails);
 
+        if (context.isSupporter && !sentEmails.has("ask-for-testimonial")) {
+          return sendEmail(context.userEmail, "ask-for-testimonial");
+        }
+
+        if (
+          context.orgPlanStatus === "trial-ending" &&
+          !sentEmails.has("warn-about-impending-trial-end")
+        ) {
+          return sendEmail(context.userEmail, "warn-about-impending-trial-end");
+        }
+
+        if (
+          context.orgPlanStatus === "trial-ended" &&
+          !sentEmails.has("reengage-user")
+        ) {
+          return sendEmail(context.userEmail, "reengage-user");
+        }
+
         if (!context.documentCreated && !sentEmails.has("create-document")) {
-          sentEmails.add("create-document");
           return sendEmail(context.userEmail, "create-document");
+        }
+
+        if (context.documentCreated) {
+          if (!context.documentShared && !sentEmails.has("share-document")) {
+            return sendEmail(context.userEmail, "share-document");
+          }
+
+          if (
+            !context.documentPublished &&
+            !sentEmails.has("publish-document")
+          ) {
+            return sendEmail(context.userEmail, "publish-document");
+          }
+        }
+
+        if (!context.orgCreated && !sentEmails.has("create-organization")) {
+          return sendEmail(context.userEmail, "create-organization");
+        }
+
+        if (context.orgCreated) {
+          if (
+            !context.orgInvitationSent &&
+            !sentEmails.has("invite-teammates")
+          ) {
+            return sendEmail(context.userEmail, "invite-teammates");
+          }
+
+          if (
+            context.orgInvitationSent &&
+            !context.orgInvitationAccepted &&
+            !sentEmails.has("follow-up-with-teammates")
+          ) {
+            return sendEmail(context.userEmail, "follow-up-with-teammates");
+          }
+
+          if (
+            context.orgPlanStatus === "free" &&
+            !sentEmails.has("upgrade-to-paid-plan")
+          ) {
+            return sendEmail(context.userEmail, "upgrade-to-paid-plan");
+          }
         }
       },
     },
@@ -403,3 +534,11 @@ Child states within \`userState\` will update our context to record what the use
     },
   }
 );
+
+async function sendEmail(
+  emailAddress: string,
+  emailType: EmailType
+): Promise<EmailType> {
+  await _sendEmail(emailAddress, emailType);
+  return emailType;
+}
