@@ -7,9 +7,11 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc --strict --declaration --module commonjs --outDir dist",
-    "prettier": "prettier --write \"src/**/*.ts\"",
+    "prettier": "prettier --write \"src/**/*.ts\" \"scripts/**/*.js\"",
     "lint": "eslint src",
-    "doc": "typedoc"
+    "smply": "smply",
+    "create-machine": "smply machines create --machine email-automation --node ./src/index.ts",
+    "publish-machine-version": "node ./scripts/publish-version.js"
   },
   "files": [
     "lib/**/*.js",
@@ -43,6 +45,7 @@
     "@typescript-eslint/parser": "^5.60.1",
     "eslint": "^8.43.0",
     "prettier": "^2.8.8",
+    "smply": "^0.1.8",
     "typedoc": "^0.24.8",
     "typescript": "^5.1.6"
   },
