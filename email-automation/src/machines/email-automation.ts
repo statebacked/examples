@@ -51,59 +51,181 @@ We'll have 2 parallel states: \`userState\` to track what the user has done and 
 
 Child states within \`userState\` will update our context to record what the user has done and the \`sendEmail\` service in \`emailSender\` will choose which emails to send based on what the user has done so far.
       `,
+    initial: "run",
     states: {
-      userState: {
-        description:
-          "Track the state of the user across each dimension we care about",
+      run: {
         states: {
-          documentActivity: {
-            description: "Track what users have done with documents",
-            initial: "noDocuments",
+          userState: {
+            description:
+              "Track the state of the user across each dimension we care about",
+            initial: "newUser",
             states: {
-              noDocuments: {
-                description: "User has not yet created a document",
-                on: {
-                  createdADocument: {
-                    target: "createdADocument",
-                  },
-                },
-              },
-              createdADocument: {
-                description: "User has created a document",
-                entry: assign({ documentCreated: true }),
+              newUser: {
                 states: {
-                  sharingStatus: {
-                    description:
-                      "Track whether the user has shared the document yet",
-                    initial: "private",
+                  documentActivity: {
+                    description: "Track what users have done with documents",
+                    initial: "noDocuments",
                     states: {
-                      private: {
+                      noDocuments: {
+                        description: "User has not yet created a document",
                         on: {
-                          sharedDocument: {
-                            target: "shared",
+                          createdADocument: {
+                            target: "createdADocument",
                           },
                         },
                       },
-                      shared: {
-                        entry: assign({ documentShared: true }),
+                      createdADocument: {
+                        description: "User has created a document",
+                        entry: assign({ documentCreated: true }),
+                        states: {
+                          sharingStatus: {
+                            description:
+                              "Track whether the user has shared the document yet",
+                            initial: "private",
+                            states: {
+                              private: {
+                                on: {
+                                  sharedDocument: {
+                                    target: "shared",
+                                  },
+                                },
+                              },
+                              shared: {
+                                entry: assign({ documentShared: true }),
+                                type: "final",
+                              },
+                            },
+                          },
+                          publishingStatus: {
+                            description:
+                              "Track whether the user has published the document yet",
+                            initial: "private",
+                            states: {
+                              private: {
+                                on: {
+                                  published: {
+                                    target: "published",
+                                  },
+                                },
+                              },
+                              published: {
+                                entry: assign({ documentPublished: true }),
+                                type: "final",
+                              },
+                            },
+                          },
+                        },
+                        type: "parallel",
+                        onDone: {
+                          target: "completedDocument",
+                        },
+                      },
+                      completedDocument: {
                         type: "final",
                       },
                     },
                   },
-                  publishingStatus: {
-                    description:
-                      "Track whether the user has published the document yet",
-                    initial: "private",
+                  organizationActivity: {
+                    description: "Track what users have done with documents",
+                    initial: "noOrganization",
                     states: {
-                      private: {
+                      noOrganization: {
+                        description: "User has not yet created an organization",
                         on: {
-                          published: {
-                            target: "published",
+                          createdOrganization: {
+                            target: "createdOrganization",
                           },
                         },
                       },
-                      published: {
-                        entry: assign({ documentPublished: true }),
+                      createdOrganization: {
+                        description: "User has created an organization",
+                        entry: assign({ orgCreated: true }),
+                        states: {
+                          invitationStatus: {
+                            description:
+                              "Track whether the user has invited teammates yet",
+                            initial: "noInvites",
+                            states: {
+                              noInvites: {
+                                on: {
+                                  invitedUser: {
+                                    target: "invited",
+                                  },
+                                },
+                              },
+                              invited: {
+                                entry: assign({ orgInvitationSent: true }),
+                                on: {
+                                  accepted: {
+                                    target: "invitationAccepted",
+                                  },
+                                },
+                              },
+                              invitationAccepted: {
+                                entry: assign({ orgInvitationAccepted: true }),
+                                type: "final",
+                              },
+                            },
+                          },
+                          planStatus: {
+                            description:
+                              "Track what plan an organization is subscribed to",
+                            initial: "freeTrial",
+                            states: {
+                              freeTrial: {
+                                entry: assign({ orgPlanStatus: "free" }),
+                                after: {
+                                  freeTrialWarningPeriod: [
+                                    {
+                                      target:
+                                        "#email-automation.run.userState.newUser.organizationActivity.createdOrganization.planStatus.trialAlmostOver",
+                                      actions: [],
+                                    },
+                                    {
+                                      internal: false,
+                                    },
+                                  ],
+                                },
+                              },
+                              trialAlmostOver: {
+                                entry: assign({
+                                  orgPlanStatus: "trial-ending",
+                                }),
+                                after: {
+                                  freeTrialWarningRemainderPeriod: [
+                                    {
+                                      target:
+                                        "#email-automation.run.userState.newUser.organizationActivity.createdOrganization.planStatus.trialEnded",
+                                      actions: [],
+                                    },
+                                    {
+                                      internal: false,
+                                    },
+                                  ],
+                                },
+                              },
+                              trialEnded: {
+                                entry: assign({ orgPlanStatus: "trial-ended" }),
+                              },
+                              paidPlan: {
+                                entry: assign({ orgPlanStatus: "paid" }),
+                                type: "final",
+                              },
+                            },
+                            on: {
+                              upgrade: {
+                                target: ".paidPlan",
+                                internal: true,
+                              },
+                            },
+                          },
+                        },
+                        type: "parallel",
+                        onDone: {
+                          target: "completedDocument",
+                        },
+                      },
+                      completedDocument: {
                         type: "final",
                       },
                     },
@@ -111,311 +233,223 @@ Child states within \`userState\` will update our context to record what the use
                 },
                 type: "parallel",
                 onDone: {
-                  target: "completedDocument",
+                  target: "userIsSupporter",
                 },
               },
-              completedDocument: {
-                type: "final",
+              userIsSupporter: {
+                entry: assign({ isSupporter: () => true }),
               },
             },
           },
-          organizationActivity: {
-            description: "Track what users have done with documents",
-            initial: "noOrganization",
+          emailSender: {
+            initial: "start",
             states: {
-              noOrganization: {
-                description: "User has not yet created an organization",
-                on: {
-                  createdOrganization: {
-                    target: "createdOrganization",
-                  },
+              start: {
+                after: {
+                  welcomeEmailDelay: [
+                    {
+                      target:
+                        "#email-automation.run.emailSender.sendWelcomeEmail",
+                      actions: [],
+                    },
+                    {
+                      internal: false,
+                    },
+                  ],
                 },
               },
-              createdOrganization: {
-                description: "User has created an organization",
-                entry: assign({ orgCreated: true }),
-                states: {
-                  invitationStatus: {
-                    description:
-                      "Track whether the user has invited teammates yet",
-                    initial: "noInvites",
-                    states: {
-                      noInvites: {
-                        on: {
-                          invitedUser: {
-                            target: "invited",
-                          },
-                        },
-                      },
-                      invited: {
-                        entry: assign({ orgInvitationSent: true }),
-                        on: {
-                          accepted: {
-                            target: "invitationAccepted",
-                          },
-                        },
-                      },
-                      invitationAccepted: {
-                        entry: assign({ orgInvitationAccepted: true }),
-                        type: "final",
+              sendWelcomeEmail: {
+                invoke: {
+                  src: "sendEmail",
+                  id: "sendWelcomeEmail",
+                  onDone: [
+                    {
+                      target: "welcomeSent",
+                      actions: {
+                        params: {},
+                        type: "appendToSentEmails",
                       },
                     },
-                  },
-                  planStatus: {
-                    description:
-                      "Track what plan an organization is subscribed to",
-                    initial: "freeTrial",
-                    states: {
-                      freeTrial: {
-                        entry: assign({ orgPlanStatus: "free" }),
-                        after: {
-                          freeTrialWarningPeriod: [
-                            {
-                              target:
-                                "#email-automation.userState.organizationActivity.createdOrganization.planStatus.trialAlmostOver",
-                              actions: [],
-                            },
-                            {
-                              internal: false,
-                            },
-                          ],
-                        },
-                      },
-                      trialAlmostOver: {
-                        entry: assign({ orgPlanStatus: "trial-ending" }),
-                        after: {
-                          freeTrialWarningRemainderPeriod: [
-                            {
-                              target:
-                                "#email-automation.userState.organizationActivity.createdOrganization.planStatus.trialEnded",
-                              actions: [],
-                            },
-                            {
-                              internal: false,
-                            },
-                          ],
-                        },
-                      },
-                      trialEnded: {
-                        entry: assign({ orgPlanStatus: "trial-ended" }),
-                      },
-                      paidPlan: {
-                        entry: assign({ orgPlanStatus: "paid" }),
-                        type: "final",
-                      },
-                    },
-                    on: {
-                      upgrade: {
-                        target: ".paidPlan",
-                        internal: true,
-                      },
-                    },
-                  },
-                },
-                type: "parallel",
-                onDone: {
-                  target: "completedDocument",
+                  ],
                 },
               },
-              completedDocument: {
+              welcomeSent: {
+                after: {
+                  "1 day": [
+                    {
+                      target: "#email-automation.run.emailSender.sendEmail1",
+                      actions: [],
+                    },
+                    {
+                      internal: false,
+                    },
+                  ],
+                },
+              },
+              sendEmail1: {
+                invoke: {
+                  src: "sendEmail",
+                  id: "sendEmail1",
+                  onDone: [
+                    {
+                      target: "email1Sent",
+                      actions: {
+                        params: {},
+                        type: "appendToSentEmails",
+                      },
+                    },
+                  ],
+                },
+              },
+              email1Sent: {
+                after: {
+                  "1 day": [
+                    {
+                      target: "#email-automation.run.emailSender.sendEmail2",
+                      actions: [],
+                    },
+                    {
+                      internal: false,
+                    },
+                  ],
+                },
+              },
+              sendEmail2: {
+                invoke: {
+                  src: "sendEmail",
+                  id: "sendEmail2",
+                  onDone: [
+                    {
+                      target: "email2Sent",
+                      actions: {
+                        params: {},
+                        type: "appendToSentEmails",
+                      },
+                    },
+                  ],
+                },
+              },
+              email2Sent: {
+                after: {
+                  "2 days": [
+                    {
+                      target: "#email-automation.run.emailSender.sendEmail3",
+                      actions: [],
+                    },
+                    {
+                      internal: false,
+                    },
+                  ],
+                },
+              },
+              sendEmail3: {
+                invoke: {
+                  src: "sendEmail",
+                  id: "sendEmail3",
+                  onDone: [
+                    {
+                      target: "email3Sent",
+                      actions: {
+                        params: {},
+                        type: "appendToSentEmails",
+                      },
+                    },
+                  ],
+                },
+              },
+              email3Sent: {
+                after: {
+                  "3 days": [
+                    {
+                      target: "#email-automation.run.emailSender.sendEmail4",
+                      actions: [],
+                    },
+                    {
+                      internal: false,
+                    },
+                  ],
+                },
+              },
+              sendEmail4: {
+                invoke: {
+                  src: "sendEmail",
+                  id: "sendEmail4",
+                  onDone: [
+                    {
+                      target: "email4Sent",
+                      actions: {
+                        params: {},
+                        type: "appendToSentEmails",
+                      },
+                    },
+                  ],
+                },
+              },
+              email4Sent: {
+                after: {
+                  "3 days": [
+                    {
+                      target: "#email-automation.run.emailSender.sendEmail5",
+                      actions: [],
+                    },
+                    {
+                      internal: false,
+                    },
+                  ],
+                },
+              },
+              sendEmail5: {
+                invoke: {
+                  src: "sendEmail",
+                  id: "sendEmail5",
+                  onDone: [
+                    {
+                      target: "email5Sent",
+                      actions: {
+                        params: {},
+                        type: "appendToSentEmails",
+                      },
+                    },
+                  ],
+                },
+              },
+              email5Sent: {
+                after: {
+                  "4 days": [
+                    {
+                      target: "#email-automation.run.emailSender.sendEmail6",
+                      actions: [],
+                    },
+                    {
+                      internal: false,
+                    },
+                  ],
+                },
+              },
+              sendEmail6: {
+                invoke: {
+                  src: "sendEmail",
+                  id: "sendEmail6",
+                  onDone: [
+                    {
+                      target: "Complete",
+                      actions: {
+                        params: {},
+                        type: "appendToSentEmails",
+                      },
+                    },
+                  ],
+                },
+              },
+              Complete: {
                 type: "final",
               },
             },
           },
         },
         type: "parallel",
-        onDone: {
-          target: "userIsSupporter",
-        },
-      },
-      userIsSupporter: {
-        entry: assign({ isSupporter: () => true }),
-      },
-      emailSender: {
-        initial: "start",
-        states: {
-          start: {
-            after: {
-              welcomeEmailDelay: [
-                {
-                  target: "#email-automation.emailSender.sendWelcomeEmail",
-                  actions: [],
-                },
-                {
-                  internal: false,
-                },
-              ],
-            },
-          },
-          sendWelcomeEmail: {
-            invoke: {
-              src: "sendEmail",
-              id: "sendWelcomeEmail",
-              onDone: [
-                {
-                  target: "welcomeSent",
-                  actions: "appendToSentEmails",
-                },
-              ],
-            },
-          },
-          welcomeSent: {
-            after: {
-              "1 day": [
-                {
-                  target: "#email-automation.emailSender.sendEmail1",
-                  actions: [],
-                },
-                {
-                  internal: false,
-                },
-              ],
-            },
-          },
-          sendEmail1: {
-            invoke: {
-              src: "sendEmail",
-              id: "sendEmail1",
-              onDone: [
-                {
-                  target: "email1Sent",
-                  actions: "appendToSentEmails",
-                },
-              ],
-            },
-          },
-          email1Sent: {
-            after: {
-              "1 day": [
-                {
-                  target: "#email-automation.emailSender.sendEmail2",
-                  actions: [],
-                },
-                {
-                  internal: false,
-                },
-              ],
-            },
-          },
-          sendEmail2: {
-            invoke: {
-              src: "sendEmail",
-              id: "sendEmail2",
-              onDone: [
-                {
-                  target: "email2Sent",
-                  actions: "appendToSentEmails",
-                },
-              ],
-            },
-          },
-          email2Sent: {
-            after: {
-              "2 days": [
-                {
-                  target: "#email-automation.emailSender.sendEmail3",
-                  actions: [],
-                },
-                {
-                  internal: false,
-                },
-              ],
-            },
-          },
-          sendEmail3: {
-            invoke: {
-              src: "sendEmail",
-              id: "sendEmail3",
-              onDone: [
-                {
-                  target: "email3Sent",
-                  actions: "appendToSentEmails",
-                },
-              ],
-            },
-          },
-          email3Sent: {
-            after: {
-              "3 days": [
-                {
-                  target: "#email-automation.emailSender.sendEmail4",
-                  actions: [],
-                },
-                {
-                  internal: false,
-                },
-              ],
-            },
-          },
-          sendEmail4: {
-            invoke: {
-              src: "sendEmail",
-              id: "sendEmail4",
-              onDone: [
-                {
-                  target: "email4Sent",
-                  actions: "appendToSentEmails",
-                },
-              ],
-            },
-          },
-          email4Sent: {
-            after: {
-              "3 days": [
-                {
-                  target: "#email-automation.emailSender.sendEmail5",
-                  actions: [],
-                },
-                {
-                  internal: false,
-                },
-              ],
-            },
-          },
-          sendEmail5: {
-            invoke: {
-              src: "sendEmail",
-              id: "sendEmail5",
-              onDone: [
-                {
-                  target: "email5Sent",
-                  actions: "appendToSentEmails",
-                },
-              ],
-            },
-          },
-          email5Sent: {
-            after: {
-              "4 days": [
-                {
-                  target: "#email-automation.emailSender.sendEmail6",
-                  actions: [],
-                },
-                {
-                  internal: false,
-                },
-              ],
-            },
-          },
-          sendEmail6: {
-            invoke: {
-              src: "sendEmail",
-              id: "sendEmail6",
-              onDone: [
-                {
-                  target: "Complete",
-                  actions: "appendToSentEmails",
-                },
-              ],
-            },
-          },
-          Complete: {
-            type: "final",
-          },
-        },
       },
     },
-    type: "parallel",
     schema: {
       context: {} as {
         documentCreated: boolean;

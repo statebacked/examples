@@ -8,7 +8,8 @@ const actualMinutes = (nMinutes: number) => nMinutes * 60 * 1000;
 
 const actualSeconds = (nSeconds: number) => nSeconds * 1000;
 
-export const days = (nDays: number) => useTestTime ? actualMinutes(nDays) : actualDays(nDays);
+export const days = (nDays: number) =>
+  useTestTime ? actualMinutes(nDays) : actualDays(nDays);
 
-export const minutes = (nMinutes: number) => useTestTime ? actualSeconds(nMinutes) : actualMinutes(nMinutes);
-
+export const minutes = (nMinutes: number) =>
+  useTestTime ? actualSeconds(nMinutes) : actualMinutes(nMinutes);
