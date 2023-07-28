@@ -8,6 +8,8 @@ With [StateBacked.dev](https://statebacked.dev), [Stately](https://stately.ai/),
 [Resend](https://resend.com/), you can build your own email automations, with as many
 conditionals as you need to represent exactly the logic you need, in just a few minutes.
 
+[![Video walkthrough](https://img.youtube.com/vi/F_uazfnwr-A/0.jpg)](https://youtu.be/F_uazfnwr-A)
+
 ## Overview
 
 Let's imagine we have an app that allows users to create documents that they can share or publish
