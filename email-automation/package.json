@@ -51,6 +51,7 @@
   },
   "dependencies": {
     "@statebacked/machine-def": "^0.3.5",
+    "resend": "^0.17.2",
     "xstate": "^4.38.2"
   }
 }
