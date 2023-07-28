@@ -14,7 +14,7 @@ export type EmailType =
 const resendKey = "re_YOUR_KEY_HERE";
 
 // just a safeguard since this is an exmaple
-const validRecipientDomains = ["statebacked.dev"];
+const validRecipientDomains = ["YOUR_DOMAIN.com"];
 
 export const sendEmail = async (emailAddress: string, emailType: EmailType) => {
   if (
