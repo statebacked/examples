@@ -4,9 +4,9 @@ Did you know that MailChimp actually considers **if statements** a premium featu
 You can make an email flow on their base plan as long as you don't include any conditions
 but you'll need to upgrade to unlock the power of **if**.
 
-With [StateBacked.dev](https://statebacked.dev), Stately, and Resend, you can build your own
-email automations, with as many conditionals as you need to represent exactly the logic you
-need, in just a few minutes.
+With [StateBacked.dev](https://statebacked.dev), [Stately](https://stately.ai/), and
+[Resend](https://resend.com/), you can build your own email automations, with as many
+conditionals as you need to represent exactly the logic you need, in just a few minutes.
 
 ## Overview
 
