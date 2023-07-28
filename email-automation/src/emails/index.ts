@@ -1,5 +1,3 @@
-import { Resend } from "resend";
-
 export type EmailType =
   | "welcome"
   | "create-document"
@@ -13,10 +11,10 @@ export type EmailType =
   | "follow-up-with-teammates"
   | "upgrade-to-paid-plan";
 
-const resend = new Resend("re_YOUR_KEY_HERE");
+const resendKey = "re_YOUR_KEY_HERE";
 
 // just a safeguard since this is an exmaple
-const validRecipientDomains = ["@statebacked.dev"];
+const validRecipientDomains = ["statebacked.dev"];
 
 export const sendEmail = async (emailAddress: string, emailType: EmailType) => {
   if (
@@ -25,10 +23,17 @@ export const sendEmail = async (emailAddress: string, emailType: EmailType) => {
     return;
   }
 
-  await resend.emails.send({
-    to: emailAddress,
-    from: "test@statebacked.dev",
-    subject: `[email automation] ${emailType}`,
-    html: `<p>Hi ${emailAddress},</p><p>This is a test email for ${emailType}.</p>`,
+  await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${resendKey}`,
+    },
+    body: JSON.stringify({
+      to: emailAddress,
+      from: "test@statebacked.dev",
+      subject: `[email automation] ${emailType}`,
+      html: `<p>Hi ${emailAddress},</p><p>This is a test email for ${emailType}.</p>`,
+    }),
   });
 };
