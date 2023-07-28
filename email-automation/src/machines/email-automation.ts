@@ -69,12 +69,12 @@ Child states within \`userState\` will update our context to record what the use
                       noDocuments: {
                         description: "User has not yet created a document",
                         on: {
-                          createdADocument: {
-                            target: "createdADocument",
+                          createdDocument: {
+                            target: "createdDocument",
                           },
                         },
                       },
-                      createdADocument: {
+                      createdDocument: {
                         description: "User has created a document",
                         entry: assign({ documentCreated: true }),
                         states: {
@@ -464,7 +464,7 @@ Child states within \`userState\` will update our context to record what the use
         isSupporter: boolean;
       },
       events: {} as
-        | { type: "createdADocument" }
+        | { type: "createdDocument" }
         | { type: "sharedDocument" }
         | { type: "published" }
         | { type: "invitedUser" }
