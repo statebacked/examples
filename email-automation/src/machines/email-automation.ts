@@ -486,7 +486,7 @@ Child states within \`userState\` will update our context to record what the use
     },
     services: {
       sendEmail: async (context, _event, meta) => {
-        if (meta.data.welcome) {
+        if (meta.data?.welcome) {
           return sendEmail(context.userEmail, "welcome");
         }
 
