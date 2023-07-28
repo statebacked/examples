@@ -1,3 +1,5 @@
+import { Resend } from "resend";
+
 export type EmailType =
   | "welcome"
   | "create-document"
@@ -11,6 +13,22 @@ export type EmailType =
   | "follow-up-with-teammates"
   | "upgrade-to-paid-plan";
 
+const resend = new Resend("re_YOUR_KEY_HERE");
+
+// just a safeguard since this is an exmaple
+const validRecipientDomains = ["@statebacked.dev"];
+
 export const sendEmail = async (emailAddress: string, emailType: EmailType) => {
-  console.log("send email", { emailAddress, emailType });
+  if (
+    !validRecipientDomains.some((domain) => emailAddress.endsWith(`@${domain}`))
+  ) {
+    return;
+  }
+
+  await resend.emails.send({
+    to: emailAddress,
+    from: "test@statebacked.dev",
+    subject: `[email automation] ${emailType}`,
+    html: `<p>Hi ${emailAddress},</p><p>This is a test email for ${emailType}.</p>`,
+  });
 };
