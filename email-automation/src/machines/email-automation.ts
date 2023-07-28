@@ -103,7 +103,7 @@ Child states within \`userState\` will update our context to record what the use
                             states: {
                               private: {
                                 on: {
-                                  published: {
+                                  publishedDocument: {
                                     target: "published",
                                   },
                                 },
@@ -156,7 +156,7 @@ Child states within \`userState\` will update our context to record what the use
                               invited: {
                                 entry: assign({ orgInvitationSent: true }),
                                 on: {
-                                  accepted: {
+                                  acceptedInvitation: {
                                     target: "invitationAccepted",
                                   },
                                 },
@@ -213,7 +213,7 @@ Child states within \`userState\` will update our context to record what the use
                               },
                             },
                             on: {
-                              upgrade: {
+                              upgradedPlan: {
                                 target: ".paidPlan",
                                 internal: true,
                               },
@@ -237,6 +237,7 @@ Child states within \`userState\` will update our context to record what the use
                 },
               },
               userIsSupporter: {
+                type: "final",
                 entry: assign({ isSupporter: () => true }),
               },
             },
@@ -448,6 +449,12 @@ Child states within \`userState\` will update our context to record what the use
           },
         },
         type: "parallel",
+        onDone: {
+          target: "complete",
+        },
+      },
+      complete: {
+        type: "final",
       },
     },
     schema: {
@@ -466,11 +473,11 @@ Child states within \`userState\` will update our context to record what the use
       events: {} as
         | { type: "createdDocument" }
         | { type: "sharedDocument" }
-        | { type: "published" }
+        | { type: "publishedDocument" }
         | { type: "invitedUser" }
         | { type: "createdOrganization" }
-        | { type: "accepted" }
-        | { type: "upgrade" },
+        | { type: "acceptedInvitation" }
+        | { type: "upgradedPlan" },
     },
     predictableActionArguments: true,
     preserveActionOrder: true,
