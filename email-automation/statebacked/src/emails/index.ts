@@ -11,10 +11,10 @@ export type EmailType =
   | "follow-up-with-teammates"
   | "upgrade-to-paid-plan";
 
-const resendKey = "re_YOUR_KEY_HERE";
+const resendKey = "re_YOUR_RESEND_KEY";
 
 // just a safeguard since this is an exmaple
-const validRecipientDomains = ["YOUR_DOMAIN.com"];
+const validRecipientDomains = ["statebacked.dev"];
 
 export const sendEmail = async (emailAddress: string, emailType: EmailType) => {
   if (
