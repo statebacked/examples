@@ -18,7 +18,10 @@ export default async function Index() {
     <div className="w-full flex flex-col items-center">
       <nav className="w-full flex justify-center border-b border-b-foreground/10 h-16">
         <div className="w-full max-w-4xl flex justify-between items-center p-3 text-sm text-foreground">
-          <div />
+          <div>
+            Note: you will receive a few emails after logging in as part of the
+            demo.
+          </div>
           <div>
             {user ? (
               <div className="flex items-center gap-4">
@@ -61,39 +64,70 @@ export default async function Index() {
         ) : null}
 
         <p>
-          In this example, we will create an email automation backend. We can
-          build our logic visually and deploy our machine as a backend in one
-          command.
+          In this example, we will create an email automation backend. We built
+          our logic visually as a state machine and can deploy our machine as a
+          serverless, durable backend in one command with State Backed.
         </p>
-        <ul className="list-disc">
-          <li>
-            Take a look at our email automation logic{" "}
-            <a
-              className="underline"
-              href="https://stately.ai/registry/editor/412c119a-b389-4ba1-b3fd-67a618616eab?machineId=0281361a-9034-4334-82aa-cbf9cc185b54&mode=Design"
-              target="_blank"
-            >
-              here
-            </a>
-            .
-          </li>
-          <li>
-            We export the state machine to{" "}
-            <span className="decoration-red-50">
-              statebacked/src/machines/email-automation.ts
-            </span>
-          </li>
-          <li>
-            Then, we upload the machine to State Backed by running{" "}
-            <pre>npm run create-machine</pre> or publish new versions with{" "}
-            <pre>npm run publish-machine-version</pre>
-          </li>
-          <li>
-            When publishing new versions, you can optionally create migrations
-            to upgrade existing machines by creating a migration file at{" "}
-            <pre>statebacked/migrations/migration.ts</pre>
-          </li>
-        </ul>
+        <p>
+          Take a look at the{" "}
+          <a
+            className="underline"
+            href="https://github.com/statebacked/examples/tree/main/email-automation/statebacked"
+          >
+            statebacked
+          </a>{" "}
+          directory on GitHub to see the entire backend for this example. You'll
+          notice that the only code we wrote was the state machine that
+          represents our business logic. No accidental complexity, no
+          configuration, no persistence handling, no boilerplate.
+        </p>
+        <p>
+          You can see the simple frontend interactions with our backend in{" "}
+          <a
+            className="underline"
+            href="https://github.com/statebacked/examples/tree/main/email-automation/ui/components/SampleApp.tsx"
+          >
+            SampleApp.tsx
+          </a>
+          . We retrieve a State Backed token from backend and then create, get,
+          and send events to our state machine instance. Our UI is a simple
+          function of the state machine's current state.
+        </p>
+        <p>
+          This example requires long-running timers (we send emails after a
+          multi-day delay, though, for example purposes, we have shortened days
+          to minutes and minutes to seconds). For that, we just rely on the
+          durable timers provided by State Backed by way of standard XState
+          delay support.
+        </p>
+        <p>
+          Typically, you would have to create at least two separate sets of
+          infrastructure to support an email automation flow: one set of
+          services to handle the email sending logic and another set of services
+          to capture and update the user state logic. Here, we handle both quite
+          naturally in the same state machine and don't need to worry about any
+          of the underlying infrastructure.
+        </p>
+        <div className="flex gap-8 justify-center items-center">
+          <Link href="/login">
+            <div className="bg-foreground py-3 px-6 rounded-lg font-mono text-sm text-background">
+              Log in to run the example yourself (note: you will receive a few
+              emails)
+            </div>
+          </Link>
+        </div>
+
+        <p>
+          You can deploy your own state machine backend in less than 5 minutes
+          with{" "}
+          <a
+            className="underline"
+            href="https://docs.statebacked.dev/docs/intro"
+          >
+            State Backed
+          </a>
+          . 1,000 events and 10,000 reads free every month.
+        </p>
 
         <div className="flex justify-center text-center text-xs">
           <p>
