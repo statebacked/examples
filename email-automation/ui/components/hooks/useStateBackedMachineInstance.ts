@@ -81,12 +81,16 @@ export default function useStateBackedMachineInstance(
 
       const { client } = sb;
 
-      const machineInstance = await client.ensureMachineInstance(
-        machineName,
-        instanceName,
-        initialContext,
-      );
-      dispatch({ type: "instance", machineInstance });
+      try {
+        const machineInstance = await client.ensureMachineInstance(
+          machineName,
+          instanceName,
+          initialContext,
+        );
+        dispatch({ type: "instance", machineInstance });
+      } catch (error) {
+        dispatch({ type: "error", error: error as Error });
+      }
     })();
   }, [sb, sbState]);
 

@@ -26,7 +26,11 @@ export default function SampleApp({
   }
 
   if (sbState.type === "error") {
-    return <p className="text-red">Error loading State Backed token</p>;
+    return (
+      <p className="text-red">
+        Oops! {sbState.error.name}: {sbState.error.message}
+      </p>
+    );
   }
 
   const state = sbState.state as StateValue;
