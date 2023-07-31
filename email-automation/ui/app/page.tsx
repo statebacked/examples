@@ -61,6 +61,15 @@ export default async function Index() {
 
         <div className="w-full p-[1px] bg-gradient-to-r from-transparent via-foreground/10 to-transparent" />
 
+        <details>
+          <summary>View state machine</summary>
+          <iframe
+            width="100%"
+            height="1000px"
+            src="https://stately.ai/registry/editor/embed/412c119a-b389-4ba1-b3fd-67a618616eab?machineId=0281361a-9034-4334-82aa-cbf9cc185b54&mode=Design"
+          ></iframe>
+        </details>
+
         {user && user.email ? (
           <SampleApp userId={user.id} email={user.email} />
         ) : null}
