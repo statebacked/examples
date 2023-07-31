@@ -47,7 +47,7 @@
     "@xstate/cli": "^0.5.2",
     "eslint": "^8.43.0",
     "prettier": "^2.8.8",
-    "smply": "^0.1.11",
+    "smply": "^0.1.12",
     "typedoc": "^0.24.8",
     "typescript": "^5.1.6"
   },
