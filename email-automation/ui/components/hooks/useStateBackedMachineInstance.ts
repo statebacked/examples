@@ -1,6 +1,12 @@
 import { useEffect, useReducer } from "react";
-import useStateBacked, { MachineInstance } from "./useStateBacked";
-import { Event, StateValue } from "@statebacked/client";
+import {
+  CreateMachineInstanceRequest,
+  Event,
+  MachineInstanceName,
+  MachineName,
+  StateBackedClient,
+  StateValue,
+} from "@statebacked/client";
 import { exhaustive } from "../utils";
 
 type Action =
@@ -59,40 +65,24 @@ export default function useStateBackedMachineInstance(
     { type: "loading", loading: true },
   );
 
-  const sb = useStateBacked(getToken);
-
-  if (sb.type === "error" && sbState.type !== "error") {
-    dispatch({ type: "error", error: sb.error });
-  }
-
-  if (sb.type === "loading" && sbState.type !== "loading") {
-    dispatch({ type: "loading", loading: sb.loading });
-  }
-
   useEffect(() => {
     (async () => {
-      if (sb.type !== "ready") {
-        return;
-      }
-
-      if (sbState.type === "data") {
-        return;
-      }
-
-      const { client } = sb;
-
       try {
-        const machineInstance = await client.ensureMachineInstance(
+        const client = new StateBackedClient(getToken);
+        const machineInstance = await MachineInstance.getOrCreate(
+          client,
           machineName,
           instanceName,
-          initialContext,
+          {
+            context: initialContext,
+          },
         );
         dispatch({ type: "instance", machineInstance });
       } catch (error) {
         dispatch({ type: "error", error: error as Error });
       }
     })();
-  }, [sb, sbState]);
+  }, [machineName, instanceName]);
 
   async function sendEvent(event: Event) {
     if (sbState.type !== "data") {
@@ -116,4 +106,56 @@ export default function useStateBackedMachineInstance(
       : sbState,
     sendEvent,
   ];
+}
+
+export class MachineInstance<
+  S extends StateValue = StateValue,
+  P extends Record<string, unknown> = Record<string, never>,
+> {
+  private constructor(
+    private client: StateBackedClient,
+    public readonly machineName: MachineName,
+    public readonly instanceName: MachineInstanceName,
+    public state: S,
+    public publicContext: P,
+  ) {}
+
+  public static async getOrCreate<
+    S extends StateValue = StateValue,
+    P extends Record<string, unknown> = Record<string, never>,
+  >(
+    client: StateBackedClient,
+    machineName: MachineName,
+    instanceName: MachineInstanceName,
+    creationArgs:
+      | Omit<CreateMachineInstanceRequest, "slug">
+      | (() => Omit<CreateMachineInstanceRequest, "slug">),
+  ) {
+    const { state, publicContext } = await client.machineInstances.getOrCreate(
+      machineName,
+      instanceName,
+      creationArgs,
+    );
+    return new MachineInstance(
+      client,
+      machineName,
+      instanceName,
+      state as S,
+      publicContext as P,
+    );
+  }
+
+  public async sendEvent(
+    event: Event,
+  ): Promise<{ state: S; publicContext: P }> {
+    const { state, publicContext } =
+      await this.client.machineInstances.sendEvent(
+        this.machineName,
+        this.instanceName,
+        { event },
+      );
+    this.state = state as S;
+    this.publicContext = publicContext as P;
+    return { state: state as S, publicContext: publicContext as P };
+  }
 }

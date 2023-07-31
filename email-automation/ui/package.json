@@ -7,7 +7,7 @@
     "prettier": "prettier --write app components \"*.{ts,js,json}\""
   },
   "dependencies": {
-    "@statebacked/client": "^0.1.14",
+    "@statebacked/client": "^0.1.16",
     "@statebacked/token": "^0.2.0",
     "@supabase/auth-helpers-nextjs": "latest",
     "@supabase/supabase-js": "latest",
