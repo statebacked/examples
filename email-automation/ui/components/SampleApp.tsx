@@ -2,6 +2,10 @@
 
 import { Event } from "@statebacked/client";
 import useStateBackedMachineInstance from "./hooks/useStateBackedMachineInstance";
+import type {
+  NestedState,
+  StateValue,
+} from "../../statebacked/src/machines/email-automation";
 
 export default function SampleApp({
   userId,
@@ -25,13 +29,16 @@ export default function SampleApp({
     return <p className="text-red">Error loading State Backed token</p>;
   }
 
-  const state = sbState.state as any;
-  console.log(state);
-  if (!state.run) {
+  const state = sbState.state as StateValue;
+  if (state === "complete") {
     return <p>Completed email series and completed all user steps</p>;
   }
-  const emailSenderState = state.run.emailSender;
-  const newUserState = state.run.userState?.newUser;
+
+  const emailSenderState = state.run?.emailSender;
+  const newUserState =
+    state.run?.userState === "userIsSupporter"
+      ? undefined
+      : state.run?.userState?.newUser;
 
   return (
     <>
@@ -41,7 +48,11 @@ export default function SampleApp({
   );
 }
 
-function EmailSenderDisplay({ emailSenderState }: { emailSenderState: any }) {
+function EmailSenderDisplay({
+  emailSenderState,
+}: {
+  emailSenderState?: NestedState<StateValue, ["run", "emailSender"]>;
+}) {
   return <p>Email sending state: {emailSenderState}</p>;
 }
 
@@ -49,7 +60,7 @@ function UserState({
   newUserState,
   sendEvent,
 }: {
-  newUserState: any;
+  newUserState: NestedState<StateValue, ["run", "userState", "newUser"]>;
   sendEvent: (event: Event) => Promise<void>;
 }) {
   if (!newUserState) {
@@ -78,10 +89,13 @@ function OrgActivity({
   orgActivityState,
   sendEvent,
 }: {
-  orgActivityState: any;
+  orgActivityState: NestedState<
+    StateValue,
+    ["run", "userState", "newUser", "organizationActivity"]
+  >;
   sendEvent: (event: Event) => Promise<void>;
 }) {
-  if (!orgActivityState.createdOrganization) {
+  if (orgActivityState === "noOrganization") {
     return (
       <div>
         <button
@@ -94,14 +108,20 @@ function OrgActivity({
     );
   }
 
+  if (orgActivityState === "completedOrganization") {
+    return <div>Completed all organization activities</div>;
+  }
+
   return (
     <div>
       <InvitationActivity
-        invitationStatus={orgActivityState.createdOrganization.invitationStatus}
+        invitationStatus={
+          orgActivityState?.createdOrganization?.invitationStatus
+        }
         sendEvent={sendEvent}
       />
       <PlanActivity
-        planStatus={orgActivityState.createdOrganization.planStatus}
+        planStatus={orgActivityState?.createdOrganization?.planStatus}
         sendEvent={sendEvent}
       />
     </div>
@@ -112,7 +132,17 @@ function PlanActivity({
   planStatus,
   sendEvent,
 }: {
-  planStatus: any;
+  planStatus: NestedState<
+    StateValue,
+    [
+      "run",
+      "userState",
+      "newUser",
+      "organizationActivity",
+      "createdOrganization",
+      "planStatus",
+    ]
+  >;
   sendEvent: (event: Event) => Promise<void>;
 }) {
   if (planStatus === "paidPlan") {
@@ -145,7 +175,17 @@ function InvitationActivity({
   invitationStatus,
   sendEvent,
 }: {
-  invitationStatus: any;
+  invitationStatus: NestedState<
+    StateValue,
+    [
+      "run",
+      "userState",
+      "newUser",
+      "organizationActivity",
+      "createdOrganization",
+      "invitationStatus",
+    ]
+  >;
   sendEvent: (event: Event) => Promise<void>;
 }) {
   if (invitationStatus === "noInvites") {
@@ -190,7 +230,10 @@ function DocumentActivity({
   documentActivityState,
   sendEvent,
 }: {
-  documentActivityState: any;
+  documentActivityState: NestedState<
+    StateValue,
+    ["run", "userState", "newUser", "documentActivity"]
+  >;
   sendEvent: (event: Event) => Promise<void>;
 }) {
   if (documentActivityState === "completedDocument") {
@@ -201,7 +244,7 @@ function DocumentActivity({
     );
   }
 
-  if (!documentActivityState.createdDocument) {
+  if (documentActivityState === "noDocuments") {
     return (
       <div>
         <button
@@ -217,12 +260,12 @@ function DocumentActivity({
   return (
     <div>
       <SharingStatus
-        sharingStatus={documentActivityState.createdDocument.sharingStatus}
+        sharingStatus={documentActivityState?.createdDocument?.sharingStatus}
         sendEvent={sendEvent}
       />
       <PublishingStatus
         publishingStatus={
-          documentActivityState.createdDocument.publishingStatus
+          documentActivityState?.createdDocument?.publishingStatus
         }
         sendEvent={sendEvent}
       />
@@ -234,7 +277,17 @@ function SharingStatus({
   sharingStatus,
   sendEvent,
 }: {
-  sharingStatus: string;
+  sharingStatus: NestedState<
+    StateValue,
+    [
+      "run",
+      "userState",
+      "newUser",
+      "documentActivity",
+      "createdDocument",
+      "sharingStatus",
+    ]
+  >;
   sendEvent: (event: Event) => Promise<void>;
 }) {
   return sharingStatus === "private" ? (
@@ -255,7 +308,17 @@ function PublishingStatus({
   publishingStatus,
   sendEvent,
 }: {
-  publishingStatus: string;
+  publishingStatus: NestedState<
+    StateValue,
+    [
+      "run",
+      "userState",
+      "newUser",
+      "documentActivity",
+      "createdDocument",
+      "publishingStatus",
+    ]
+  >;
   sendEvent: (event: Event) => Promise<void>;
 }) {
   return publishingStatus === "private" ? (

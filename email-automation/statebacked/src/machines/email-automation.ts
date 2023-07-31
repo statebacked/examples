@@ -1,4 +1,9 @@
-import { createMachine, assign, DoneEvent } from "xstate";
+import {
+  createMachine,
+  assign,
+  DoneEvent,
+  StateValueFrom,
+} from "xstate";
 import * as duration from "../duration";
 import { EmailType, sendEmail as _sendEmail } from "../emails";
 
@@ -222,10 +227,10 @@ Child states within \`userState\` will update our context to record what the use
                         },
                         type: "parallel",
                         onDone: {
-                          target: "completedDocument",
+                          target: "completedOrganization",
                         },
                       },
-                      completedDocument: {
+                      completedOrganization: {
                         type: "final",
                       },
                     },
@@ -484,6 +489,7 @@ Child states within \`userState\` will update our context to record what the use
     },
     predictableActionArguments: true,
     preserveActionOrder: true,
+    tsTypes: {} as import("./email-automation.typegen").Typegen0,
   },
   {
     actions: {
@@ -586,3 +592,34 @@ async function sendEmail(
   await _sendEmail(emailAddress, emailType);
   return emailType;
 }
+
+// some useful machinery for passing around states in a type-safe way
+
+export type StateValue = SimplifiedStateValue<
+  StateValueFrom<typeof emailAutomationMachine>
+>;
+
+type ExtractStrings<T> = Extract<T, string>;
+type ExtractObjects<T> = Extract<T, Record<string, unknown>>;
+type ObjectKeys<T> = T extends Record<string, unknown> ? keyof T : never;
+
+type RemoveMatchingKeys<T> = Exclude<
+  ExtractStrings<T>,
+  ObjectKeys<ExtractObjects<T>> | `${string}.${string}`
+>;
+
+type Simplified<T> = {
+  [K in keyof T]: SimplifiedStateValue<T[K]>;
+};
+
+type SimplifiedStateValue<T> =
+  | RemoveMatchingKeys<T>
+  | Simplified<ExtractObjects<T>>;
+
+export type NestedState<T, K extends readonly string[]> = K["length"] extends 0
+  ? T
+  : K extends [infer F, ...infer R]
+  ? F extends keyof ExtractObjects<T>
+    ? NestedState<ExtractObjects<T>[F], Extract<R, string[]>>
+    : never
+  : never;

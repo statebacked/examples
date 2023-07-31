@@ -11,7 +11,8 @@
     "lint": "eslint src",
     "smply": "smply",
     "create-machine": "smply machines create --machine email-automation --node ./src/index.ts",
-    "publish-machine-version": "node ./scripts/publish-version.js"
+    "publish-machine-version": "node ./scripts/publish-version.js",
+    "typegen": "xstate typegen ./src/machines/*.ts"
   },
   "files": [
     "lib/**/*.js",
@@ -43,6 +44,7 @@
     "@types/node": "^20.3.2",
     "@typescript-eslint/eslint-plugin": "^5.60.1",
     "@typescript-eslint/parser": "^5.60.1",
+    "@xstate/cli": "^0.5.2",
     "eslint": "^8.43.0",
     "prettier": "^2.8.8",
     "smply": "^0.1.11",
