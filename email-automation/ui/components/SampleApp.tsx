@@ -35,7 +35,21 @@ export default function SampleApp({
 
   const state = sbState.state;
   if (state === "complete") {
-    return <p>Completed email series and completed all user steps</p>;
+    return (
+      <div>
+        <details>
+          <summary>JSON machine instance state</summary>
+          {JSON.stringify(state)}
+        </details>
+        <p>Completed email series and completed all user steps</p>
+        <button
+          className={btnClass}
+          onClick={() => sendEvent({ type: "reset" })}
+        >
+          Reset app
+        </button>
+      </div>
+    );
   }
 
   const emailSenderState = state.run?.emailSender;
@@ -46,8 +60,15 @@ export default function SampleApp({
 
   return (
     <>
+      <details>
+        <summary>JSON machine instance state</summary>
+        {JSON.stringify(state)}
+      </details>
       <EmailSenderDisplay emailSenderState={emailSenderState} />
       <UserState newUserState={newUserState} sendEvent={sendEvent} />
+      <button className={btnClass} onClick={() => sendEvent({ type: "reset" })}>
+        Reset app
+      </button>
     </>
   );
 }
@@ -57,7 +78,12 @@ function EmailSenderDisplay({
 }: {
   emailSenderState?: NestedState<StateValue, ["run", "emailSender"]>;
 }) {
-  return <p>Email sending state: {emailSenderState}</p>;
+  return (
+    <fieldset className="border border-solid border-gray-300 p-3">
+      <legend>Email sender state</legend>
+      {emailSenderState}
+    </fieldset>
+  );
 }
 
 function UserState({
@@ -73,15 +99,20 @@ function UserState({
 
   return (
     <>
-      {JSON.stringify(newUserState)}
-      <DocumentActivity
-        documentActivityState={newUserState.documentActivity}
-        sendEvent={sendEvent}
-      />
-      <OrgActivity
-        orgActivityState={newUserState.organizationActivity}
-        sendEvent={sendEvent}
-      />
+      <fieldset className="border border-solid border-gray-300 p-3">
+        <legend>Document state</legend>
+        <DocumentActivity
+          documentActivityState={newUserState.documentActivity}
+          sendEvent={sendEvent}
+        />
+      </fieldset>
+      <fieldset className="border border-solid border-gray-300 p-3">
+        <legend>Organization state</legend>
+        <OrgActivity
+          orgActivityState={newUserState.organizationActivity}
+          sendEvent={sendEvent}
+        />
+      </fieldset>
     </>
   );
 }
