@@ -14,7 +14,7 @@ export default function SampleApp({
   userId: string;
   email: string;
 }) {
-  const [sbState, sendEvent] = useStateBackedMachineInstance(
+  const [sbState, sendEvent] = useStateBackedMachineInstance<StateValue>(
     getStateBackedToken,
     "email-automation",
     userId,
@@ -33,7 +33,7 @@ export default function SampleApp({
     );
   }
 
-  const state = sbState.state as StateValue;
+  const state = sbState.state;
   if (state === "complete") {
     return <p>Completed email series and completed all user steps</p>;
   }

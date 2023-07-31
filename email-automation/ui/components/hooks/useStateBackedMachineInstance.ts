@@ -9,34 +9,37 @@ import {
 } from "@statebacked/client";
 import { exhaustive } from "../utils";
 
-type Action =
+type Action<S extends StateValue, P extends Record<string, unknown>> =
   | { type: "error"; error: Error }
   | { type: "data"; state: StateValue; publicContext: Record<string, any> }
   | { type: "loading"; loading: boolean }
-  | { type: "instance"; machineInstance: MachineInstance };
-type State =
+  | { type: "instance"; machineInstance: MachineInstance<S, P> };
+type State<S extends StateValue, P extends Record<string, unknown>> =
   | {
       type: "data";
-      machineInstance: MachineInstance;
+      machineInstance: MachineInstance<S, P>;
       state: StateValue;
       publicContext: Record<string, any>;
     }
   | { type: "error"; error: Error }
   | { type: "loading"; loading: boolean };
 
-export type InstanceState =
-  | { type: "data"; state: StateValue; publicContext: Record<string, any> }
+export type InstanceState<S, P> =
+  | { type: "data"; state: S; publicContext: P }
   | { type: "error"; error: Error }
   | { type: "loading"; loading: boolean };
 
-export default function useStateBackedMachineInstance(
+export default function useStateBackedMachineInstance<
+  S extends StateValue = StateValue,
+  P extends Record<string, unknown> = Record<string, never>,
+>(
   getToken: () => Promise<string>,
   machineName: string,
   instanceName: string,
   initialContext?: Record<string, any>,
-): [InstanceState, (event: Event) => Promise<void>] {
+): [InstanceState<S, P>, (event: Event) => Promise<void>] {
   const [sbState, dispatch] = useReducer(
-    (state: State, action: Action): State => {
+    (state: State<S, P>, action: Action<S, P>): State<S, P> => {
       switch (action.type) {
         case "loading":
           return { type: "loading", loading: action.loading };
@@ -69,7 +72,7 @@ export default function useStateBackedMachineInstance(
     (async () => {
       try {
         const client = new StateBackedClient(getToken);
-        const machineInstance = await MachineInstance.getOrCreate(
+        const machineInstance = await MachineInstance.getOrCreate<S, P>(
           client,
           machineName,
           instanceName,
@@ -98,11 +101,11 @@ export default function useStateBackedMachineInstance(
 
   return [
     sbState.type === "data"
-      ? {
+      ? ({
           type: "data",
           state: sbState.state,
           publicContext: sbState.publicContext,
-        }
+        } as InstanceState<S, P>)
       : sbState,
     sendEvent,
   ];
