@@ -1,9 +1,4 @@
-import {
-  createMachine,
-  assign,
-  DoneEvent,
-  StateValueFrom,
-} from "xstate";
+import { createMachine, assign, DoneEvent, StateValueFrom } from "xstate";
 import * as duration from "../duration";
 import { EmailType, sendEmail as _sendEmail } from "../emails";
 

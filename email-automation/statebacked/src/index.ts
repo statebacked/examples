@@ -1,6 +1,7 @@
 import type { AllowRead, AllowWrite } from "@statebacked/machine-def";
 import type { ContextFrom } from "xstate";
 import { emailAutomationMachine } from "./machines/email-automation";
+import { AuthContext } from "./auth-context";
 
 export default emailAutomationMachine;
 
@@ -12,7 +13,7 @@ export const allowRead: AllowRead<Context> = ({
   machineInstanceName,
 }) => authContext.sub === machineInstanceName;
 
-export const allowWrite: AllowWrite<Context> = ({
+export const allowWrite: AllowWrite<Context, AuthContext> = ({
   authContext,
   machineInstanceName,
   type,
@@ -23,7 +24,7 @@ export const allowWrite: AllowWrite<Context> = ({
     return false;
   }
 
-  if (type === "initialization" && context.userEmail.indexOf("@") < 0) {
+  if (type === "initialization" && context.userEmail === authContext.email) {
     // machines must be initialized with a valid email address
     return false;
   }
