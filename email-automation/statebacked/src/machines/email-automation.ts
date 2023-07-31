@@ -287,6 +287,9 @@ Child states within \`userState\` will update our context to record what the use
                 invoke: {
                   src: "sendEmail",
                   id: "sendWelcomeEmail",
+                  data: {
+                    welcome: true,
+                  },
                   onDone: [
                     {
                       target: "welcomeSent",
