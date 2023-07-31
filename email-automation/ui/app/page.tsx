@@ -41,7 +41,7 @@ export default async function Index() {
       </nav>
 
       <div className="animate-in flex flex-col gap-14 opacity-0 max-w-4xl px-3 py-16 lg:py-24 text-foreground">
-        <div className="flex flex-col items-center mb-4 lg:mb-12">
+        <div className="flex flex-col items-center">
           <div className="flex gap-8 justify-center items-center">
             <Link href="https://statebacked.dev/" target="_blank">
               <div className="flex flex-row gap-2 items-center text-3xl font-bold">
@@ -53,8 +53,15 @@ export default async function Index() {
             The fastest way to launch a stateful backend
           </p>
           <Link href="https://docs.statebacked.dev">
-            <div className="bg-foreground py-3 px-6 rounded-lg font-mono text-sm text-background">
+            <div className="bg-btn-background py-3 px-6 rounded-lg font-mono text-sm text-foreground">
               Instant backend from any XState state machine
+            </div>
+          </Link>
+        </div>
+        <div className="flex gap-8 justify-center items-center">
+          <Link href="https://github.com/statebacked/examples/tree/main/email-automation">
+            <div className="bg-foreground py-3 px-6 rounded-lg font-mono text-sm text-background">
+              Check out the example on GitHub
             </div>
           </Link>
         </div>
