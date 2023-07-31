@@ -52,9 +52,11 @@ export default async function Index() {
           <p className="text-3xl lg:text-4xl !leading-tight mx-auto max-w-xl text-center my-12">
             The fastest way to launch a stateful backend
           </p>
-          <div className="bg-foreground py-3 px-6 rounded-lg font-mono text-sm text-background">
-            Instant backend from any XState state machine
-          </div>
+          <Link href="https://docs.statebacked.dev">
+            <div className="bg-foreground py-3 px-6 rounded-lg font-mono text-sm text-background">
+              Instant backend from any XState state machine
+            </div>
+          </Link>
         </div>
 
         <div className="w-full p-[1px] bg-gradient-to-r from-transparent via-foreground/10 to-transparent" />
@@ -65,8 +67,15 @@ export default async function Index() {
 
         <p>
           In this example, we will create an email automation backend. We built
-          our logic visually as a state machine and can deploy our machine as a
-          serverless, durable backend in one command with State Backed.
+          our logic{" "}
+          <a
+            className="underline"
+            href="https://stately.ai/registry/editor/412c119a-b389-4ba1-b3fd-67a618616eab?machineId=0281361a-9034-4334-82aa-cbf9cc185b54&mode=Design"
+          >
+            visually
+          </a>{" "}
+          as a state machine and can deploy our machine as a serverless, durable
+          backend in one command with State Backed.
         </p>
         <p>
           Take a look at the{" "}
@@ -116,6 +125,8 @@ export default async function Index() {
             </div>
           </Link>
         </div>
+
+        <div className="w-full p-[1px] bg-gradient-to-r from-transparent via-foreground/10 to-transparent" />
 
         <p>
           You can deploy your own state machine backend in less than 5 minutes

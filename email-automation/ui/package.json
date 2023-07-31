@@ -25,6 +25,6 @@
     "@types/react-dom": "18.2.5",
     "encoding": "^0.1.13",
     "prettier": "^3.0.0",
-     "xstate": "^4.38.2"
+    "xstate": "^4.38.2"
   }
 }
