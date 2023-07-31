@@ -119,7 +119,7 @@ export interface Typegen0 {
     "4 days": "done.invoke.sendEmail5";
     freeTrialWarningPeriod: "createdOrganization";
     freeTrialWarningRemainderPeriod: "xstate.after(freeTrialWarningPeriod)#email-automation.run.userState.newUser.organizationActivity.createdOrganization.planStatus.freeTrial";
-    welcomeEmailDelay: "xstate.init";
+    welcomeEmailDelay: "reset" | "xstate.init";
   };
   eventsCausingGuards: {};
   eventsCausingServices: {

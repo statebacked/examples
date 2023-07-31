@@ -58,6 +58,7 @@ Child states within \`userState\` will update our context to record what the use
           userState: {
             description:
               "Track the state of the user across each dimension we care about",
+            entry: assign({ isSupporter: false }),
             initial: "newUser",
             states: {
               newUser: {
@@ -68,6 +69,11 @@ Child states within \`userState\` will update our context to record what the use
                     states: {
                       noDocuments: {
                         description: "User has not yet created a document",
+                        entry: assign({
+                          documentShared: false,
+                          documentCreated: false,
+                          documentPublished: false,
+                        }),
                         on: {
                           createdDocument: {
                             target: "createdDocument",
@@ -124,6 +130,12 @@ Child states within \`userState\` will update our context to record what the use
                         type: "final",
                       },
                     },
+                    on: {
+                      reset: {
+                        target: ".noDocuments",
+                        internal: true,
+                      },
+                    },
                   },
                   organizationActivity: {
                     description: "Track what users have done with documents",
@@ -131,6 +143,11 @@ Child states within \`userState\` will update our context to record what the use
                     states: {
                       noOrganization: {
                         description: "User has not yet created an organization",
+                        entry: assign({
+                          orgCreated: false,
+                          orgPlanStatus: null,
+                          orgInvitationSent: false,
+                        }),
                         on: {
                           createdOrganization: {
                             target: "createdOrganization",
@@ -229,6 +246,12 @@ Child states within \`userState\` will update our context to record what the use
                         type: "final",
                       },
                     },
+                    on: {
+                      reset: {
+                        target: ".noOrganization",
+                        internal: true,
+                      },
+                    },
                   },
                 },
                 type: "parallel",
@@ -237,8 +260,8 @@ Child states within \`userState\` will update our context to record what the use
                 },
               },
               userIsSupporter: {
-                type: "final",
                 entry: assign({ isSupporter: () => true }),
+                type: "final",
               },
             },
           },
@@ -246,6 +269,7 @@ Child states within \`userState\` will update our context to record what the use
             initial: "start",
             states: {
               start: {
+                entry: assign({ sentEmails: [] }),
                 after: {
                   welcomeEmailDelay: [
                     {
@@ -263,15 +287,12 @@ Child states within \`userState\` will update our context to record what the use
                 invoke: {
                   src: "sendEmail",
                   id: "sendWelcomeEmail",
-                  data: {
-                    welcome: true,
-                  },
                   onDone: [
                     {
                       target: "welcomeSent",
                       actions: {
-                        params: {},
                         type: "appendToSentEmails",
+                        params: {},
                       },
                     },
                   ],
@@ -298,8 +319,8 @@ Child states within \`userState\` will update our context to record what the use
                     {
                       target: "email1Sent",
                       actions: {
-                        params: {},
                         type: "appendToSentEmails",
+                        params: {},
                       },
                     },
                   ],
@@ -326,8 +347,8 @@ Child states within \`userState\` will update our context to record what the use
                     {
                       target: "email2Sent",
                       actions: {
-                        params: {},
                         type: "appendToSentEmails",
+                        params: {},
                       },
                     },
                   ],
@@ -354,8 +375,8 @@ Child states within \`userState\` will update our context to record what the use
                     {
                       target: "email3Sent",
                       actions: {
-                        params: {},
                         type: "appendToSentEmails",
+                        params: {},
                       },
                     },
                   ],
@@ -382,8 +403,8 @@ Child states within \`userState\` will update our context to record what the use
                     {
                       target: "email4Sent",
                       actions: {
-                        params: {},
                         type: "appendToSentEmails",
+                        params: {},
                       },
                     },
                   ],
@@ -410,8 +431,8 @@ Child states within \`userState\` will update our context to record what the use
                     {
                       target: "email5Sent",
                       actions: {
-                        params: {},
                         type: "appendToSentEmails",
+                        params: {},
                       },
                     },
                   ],
@@ -438,8 +459,8 @@ Child states within \`userState\` will update our context to record what the use
                     {
                       target: "Complete",
                       actions: {
-                        params: {},
                         type: "appendToSentEmails",
+                        params: {},
                       },
                     },
                   ],
@@ -449,6 +470,18 @@ Child states within \`userState\` will update our context to record what the use
                 type: "final",
               },
             },
+            on: {
+              reset: {
+                target: ".start",
+                internal: true,
+              },
+            },
+          },
+        },
+        on: {
+          reset: {
+            target: ".userState.newUser",
+            internal: true,
           },
         },
         type: "parallel",
@@ -456,8 +489,12 @@ Child states within \`userState\` will update our context to record what the use
           target: "complete",
         },
       },
-      complete: {
-        type: "final",
+      complete: {},
+    },
+    on: {
+      reset: {
+        target: ".run",
+        internal: true,
       },
     },
     schema: {
@@ -480,7 +517,8 @@ Child states within \`userState\` will update our context to record what the use
         | { type: "invitedUser" }
         | { type: "createdOrganization" }
         | { type: "acceptedInvitation" }
-        | { type: "upgradedPlan" },
+        | { type: "upgradedPlan" }
+        | { type: "reset" },
     },
     predictableActionArguments: true,
     preserveActionOrder: true,
