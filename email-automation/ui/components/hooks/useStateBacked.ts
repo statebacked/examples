@@ -43,11 +43,10 @@ class StateBacked {
     initialContext?: Record<string, any>,
   ): Promise<MachineInstance> {
     try {
-      const { state, publicContext } =
-        await this.client.machineInstances.create(machineName, {
-          slug: instanceName,
-          context: initialContext,
-        });
+      const { state, publicContext } = await this.client.machineInstances.get(
+        machineName,
+        instanceName,
+      );
       return new MachineInstance(
         this.client,
         machineName,
@@ -56,19 +55,37 @@ class StateBacked {
         publicContext,
       );
     } catch (error) {
-      if (error instanceof errors.ConflictError) {
-        // machine already exists
-        const { state, publicContext } = await this.client.machineInstances.get(
-          machineName,
-          instanceName,
-        );
-        return new MachineInstance(
-          this.client,
-          machineName,
-          instanceName,
-          state,
-          publicContext,
-        );
+      if (error instanceof errors.NotFoundError) {
+        // create the machine if it doesn't exist
+        try {
+          const { state, publicContext } =
+            await this.client.machineInstances.create(machineName, {
+              slug: instanceName,
+              context: initialContext,
+            });
+          return new MachineInstance(
+            this.client,
+            machineName,
+            instanceName,
+            state,
+            publicContext,
+          );
+        } catch (err) {
+          if (err instanceof errors.ConflictError) {
+            // the machine was created by another request, read it
+            const { state, publicContext } =
+              await this.client.machineInstances.get(machineName, instanceName);
+            return new MachineInstance(
+              this.client,
+              machineName,
+              instanceName,
+              state,
+              publicContext,
+            );
+          }
+
+          throw err;
+        }
       }
 
       throw error;
