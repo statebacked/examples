@@ -64,29 +64,71 @@ function ExampleApp({
 
   const isOnboarding = state.hasTag("show-onboarding");
   const onboardingPosition = getOnboardingPosition(state);
+  const editorActions = getMsg(state)?.editorActions ?? [];
+  const showRequirementsHelp = state.hasTag("requirements-help");
+  const showWalkthroughHelp = state.hasTag("walkthrough-help");
 
   return (
-    <div className={styles.appContainer}>
-      <header className={styles.header}>
-        Our example app{" "}
-        {isOnboarding ? (
-          <div className={styles.shiftRight}>*onboarding*</div>
-        ) : null}
-      </header>
-      <div className={styles.mainContainer}>
-        <div className={styles.mainLeft}>
-          This is the main editor area for the app
+    <div className={styles.container}>
+      <div className={styles.appContainer}>
+        <header className={styles.header}>Our example app </header>
+        <div className={styles.mainContainer}>
+          <div className={styles.mainLeft}>
+            This is the main editor area for the app
+            <div>
+              {editorActions.map((action) => (
+                <button key={action.text} onClick={() => send(action.click())}>
+                  {action.text}
+                </button>
+              ))}
+            </div>
+            {showRequirementsHelp ? (
+              <div>
+                <p>Requirements help</p>
+                <button
+                  onClick={() => send({ type: "Hide requirements help" })}
+                >
+                  Hide help
+                </button>
+              </div>
+            ) : null}
+          </div>
+          <div className={styles.mainRight}>
+            This is where we visualize the editor state
+            {showWalkthroughHelp ? (
+              <div>
+                <p>Walkthrough help</p>
+                <button onClick={() => send({ type: "Hide walkthrough help" })}>
+                  Hide help
+                </button>
+              </div>
+            ) : null}
+          </div>
         </div>
-        <div className={styles.mainRight}>
-          This is where we visualize the editor state
-        </div>
+        <footer
+          className={`${styles.footer} ${
+            onboardingPosition === "bottom" ? styles.showFooter : ""
+          }`}
+        ></footer>
+        {isOnboarding ? <Onboarding state={state} send={send} /> : null}
       </div>
-      <footer
-        className={`${styles.footer} ${
-          onboardingPosition === "bottom" ? styles.showFooter : ""
-        }`}
-      ></footer>
-      {isOnboarding ? <Onboarding state={state} send={send} /> : null}
+      <div>
+        <p>Customer service portal</p>
+        <button
+          onClick={() =>
+            send({ type: "Customer support: Reset to contextual help" })
+          }
+        >
+          Reset to show contextual help
+        </button>
+        <button
+          onClick={() =>
+            send({ type: "Customer support: Reset to guided onboarding" })
+          }
+        >
+          Reset to guided onboarding
+        </button>
+      </div>
     </div>
   );
 }
@@ -133,7 +175,11 @@ function getOnboardingPosition(state: ActorState<State, OnlyPublicContext>) {
 
 function getMsg(
   state: ActorState<State, OnlyPublicContext>,
-): { text: string; actions?: { text: string; click: () => Event }[] } | null {
+): {
+  text: string;
+  actions?: Array<{ text: string; click: () => Event }>;
+  editorActions?: Array<{ text: string; click: () => Event }>;
+} | null {
   if (state.matches("Guided Onboarding.Intro")) {
     return {
       text: "Team Pando turns product requirements into flows",
@@ -161,12 +207,24 @@ function getMsg(
   if (state.matches("Guided Onboarding.Requirements blocks")) {
     return {
       text: "In our PRD editor (to the left), everything is a block. Your requirements live in Requirements Blocks. Try creating one now by typing '/Requirements'.",
+      editorActions: [
+        {
+          text: "Create requirements block",
+          click: () => ({ type: "Add requirement block" }),
+        },
+      ],
     };
   }
 
   if (state.matches("Guided Onboarding.Name flow")) {
     return {
       text: "Every requirements block specifies some requirements for a flow. Now it's time to give your flow a name.",
+      editorActions: [
+        {
+          text: "Name flow",
+          click: () => ({ type: "Name flow" }),
+        },
+      ],
     };
   }
 
@@ -176,7 +234,13 @@ function getMsg(
       actions: [
         {
           text: "Add example requirements",
-          click: () => ({ type: "Add example requirements" }),
+          click: () => ({ type: "Analyzed requirement" }),
+        },
+      ],
+      editorActions: [
+        {
+          text: "Add custom requirements",
+          click: () => ({ type: "Analyzed requirement" }),
         },
       ],
     };
@@ -197,6 +261,12 @@ function getMsg(
   if (state.matches("Guided Onboarding.Explain layers")) {
     return {
       text: "Now that you have a flow defined, you can add layers of context, designs, and other information to each part of your flow.",
+      editorActions: [
+        {
+          text: "Add layer",
+          click: () => ({ type: "Added layer" }),
+        },
+      ],
     };
   }
 
