@@ -85,5 +85,6 @@ to integrate with State Backed super quickly.
 In [`ui/src/hooks/useMachine.ts`](./ui/src/hooks/useMachine.ts), we create a local Actor that represents our remote machine instance.
 
 Then, in [`ui/src/Example.tsx`](./ui/src/Example.tsx), we use the regular `useActor` hook from XState to read our remote machine state, send it events, and render our UI as a function of that state.
+This means that you can interact with your persistent, backend State Backed machine instances **exactly the same way** you interact with your local XState instances.
 
 Quickest. Backend. Integration. Ever.
