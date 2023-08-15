@@ -1,5 +1,6 @@
 import { createMachine, assign } from "xstate";
 
+// Machine was built visually here: https://stately.ai/registry/editor/0885219e-36eb-4df0-938d-0ba06f338c2f?mode=design&machineId=baf70852-5205-431f-b545-7e76b8d78a54
 export const onboardingMachine = createMachine(
   {
     id: "State Backed onboarding machine example",

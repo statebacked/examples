@@ -9,6 +9,30 @@ function App() {
 
   return (
     <>
+      <p>
+        This example application demonstrates using a{" "}
+        <a href="https://docs.statebacked.dev">State Backed</a> state machine to
+        build an onboarding flow visually and quickly.
+      </p>
+      <p>
+        We're going to mimic the onboarding flow for{" "}
+        <a href="https://www.teampando.com" target="_blank">
+          Team Pando
+        </a>
+        , an app that features a block-based PRD editor that turns product
+        requirements into visualizable flows.
+      </p>
+      <p>
+        During onboarding, we want to show a guided tour above the app and,
+        after onboarding, we want to show contextual help.
+      </p>
+      <p>
+        Check out a quick video of the Team Pando flow that we're mimicing{" "}
+        <a href="https://youtu.be/eh9hrTRpSq4" target="_blank">
+          here
+        </a>
+        .
+      </p>
       {session ? (
         <Example uid={session.user.id} />
       ) : (

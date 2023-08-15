@@ -173,9 +173,7 @@ function getOnboardingPosition(state: ActorState<State, OnlyPublicContext>) {
     : "none";
 }
 
-function getMsg(
-  state: ActorState<State, OnlyPublicContext>,
-): {
+function getMsg(state: ActorState<State, OnlyPublicContext>): {
   text: string;
   actions?: Array<{ text: string; click: () => Event }>;
   editorActions?: Array<{ text: string; click: () => Event }>;

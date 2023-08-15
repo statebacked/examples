@@ -46,10 +46,10 @@ Your logic is what _actually_ matters and, with this stack, that's all you focus
 
 First, check out the state machine we built, entirely visually, in the [Stately editor](https://stately.ai/registry/editor/412c119a-b389-4ba1-b3fd-67a618616eab?machineId=0281361a-9034-4334-82aa-cbf9cc185b54&mode=Design).
 
-We exported that machine to [`src/machines/email-automation.ts`](./src/machines/email-automation.ts).
+We exported that machine to [`statebacked/src/machines/email-automation.ts`](./statebacked/src/machines/email-automation.ts).
 
 Then, we implemented our `sendEmail` service using [Resend](https://www.resend.com).
-You'll need to update the resend API key [here](./src/emails/index.ts) before deploying.
+You'll need to update the resend API key [here](./statebacked/src/emails/index.ts) before deploying.
 
 Finally, we deploy our state machine to State Backed.
 
@@ -57,10 +57,10 @@ The first time you deploy, run:
 
 ```bash
 npm run create-machine
-# or: npx smply machines create --machine email-automation --node ./src/index.ts
+# or: npx smply machines create --machine email-automation --node ./statebacked/src/index.ts
 ```
 
-Once your machine `email-automation` machine is created, you can run `npm run publish-machine-version` to publish new versions of the machine.
+Once your `email-automation` machine is created, you can run `npm run publish-machine-version` to publish new versions of the machine.
 
 You can add a `migrations/migration.ts` file before publishing a new version to create a [migration](https://docs.statebacked.dev/docs/concepts/migrations)
 from your current machine version to the new version.

@@ -15,6 +15,8 @@ body {
   margin: auto;
   text-align: center;
   display: flex;
+  flex-direction: column;
+  overflow-y: auto;
 }
 
 .logo {
@@ -51,4 +53,8 @@ body {
 
 .read-the-docs {
   color: #888;
+}
+
+p {
+  margin: 10px;
 }
