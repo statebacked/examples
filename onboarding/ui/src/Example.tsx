@@ -71,7 +71,14 @@ function ExampleApp({
   return (
     <div className={styles.container}>
       <div className={styles.appContainer}>
-        <header className={styles.header}>Our example app </header>
+        <header className={styles.header}>
+          Our example app
+          <div className={styles.shiftRight}>
+            <button onClick={() => supabaseClient.auth.signOut()}>
+              Log out{" "}
+            </button>
+          </div>
+        </header>
         <div className={styles.mainContainer}>
           <div className={styles.mainLeft}>
             This is the main editor area for the app

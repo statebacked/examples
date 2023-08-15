@@ -7,6 +7,10 @@ import Example from "./Example";
 function App() {
   const session = useAuth();
 
+  if (session === "loading") {
+    return null;
+  }
+
   return (
     <>
       <p>
@@ -31,7 +35,8 @@ function App() {
         <a href="https://youtu.be/eh9hrTRpSq4" target="_blank">
           here
         </a>
-        .
+        . As an added bonus, we'll also add the ability for customer support
+        agents to reset users to past states (in about 2 lines of code).
       </p>
       {session ? (
         <Example uid={session.user.id} />

@@ -7,7 +7,7 @@ export const supabaseClient = createClient(
 );
 
 export const useAuth = () => {
-  const [session, setSession] = useState<Session | null>(null);
+  const [session, setSession] = useState<Session | "loading" | null>("loading");
   let canceled = false;
 
   useEffect(() => {

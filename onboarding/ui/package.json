@@ -11,7 +11,7 @@
     "prettier": "prettier --write src"
   },
   "dependencies": {
-    "@statebacked/client": "^0.1.23",
+    "@statebacked/client": "^0.1.24",
     "@supabase/auth-ui-react": "^0.4.2",
     "@supabase/auth-ui-shared": "^0.1.6",
     "@supabase/supabase-js": "^2.32.0",
