@@ -1,0 +1,83 @@
+.appContainer {
+  display: flex;
+  flex-direction: column;
+  width: 75%;
+  height: 75%;
+  border: 1px solid #ccc;
+  margin: auto;
+  position: relative;
+}
+
+.shiftRight {
+  margin-left: auto;
+}
+
+.header {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  border-bottom: 1px solid #ccc;
+}
+
+.mainContainer {
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+}
+
+.mainLeft {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  border-right: 1px solid #ccc;
+}
+
+.mainRight {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.footer {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid #ccc;
+  border-collapse: collapse;
+}
+
+.showFooter {
+  height: 100px;
+}
+
+.onboarding {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  background-color: rgba(0, 255, 255, 0.9);
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.onboarding.fullscreen {
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.onboarding.right {
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 50%;
+  width: 50%;
+}
