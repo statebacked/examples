@@ -1,5 +1,5 @@
 import type { AllowRead, AllowWrite } from "@statebacked/machine-def";
-import type { ContextFrom, EventFrom } from "xstate";
+import type { ContextFrom, EventFrom, StateValueFrom } from "xstate";
 import { matchesState } from "xstate/lib/utils";
 import { ticTacToeMachine } from "./tic-tac-toe-machine";
 
@@ -7,6 +7,7 @@ export default ticTacToeMachine;
 
 type Context = ContextFrom<typeof ticTacToeMachine>;
 type Event = EventFrom<typeof ticTacToeMachine>;
+type State = StateValueFrom<typeof ticTacToeMachine>;
 type AuthContext = { sub: string };
 
 // users can read from any machine they're a player in or a machine that doesn't yet have a player2
@@ -19,15 +20,15 @@ export const allowRead: AllowRead<Context, AuthContext> = ({
   !context.player2Id;
 
 // users can send to their own machines if it's their turn
-export const allowWrite: AllowWrite<Context, AuthContext, Event> = (env) => {
+export const allowWrite: AllowWrite<Context, AuthContext, Event, State> = (env) => {
   // you can't lie about your id
   if (env.type === "initialization") {
     return env.authContext.sub === env.context.player1Id;
   }
 
   // you can't lie about your id
-  if (env.event.data.type === "join") {
-    return env.authContext.sub === env.event.data.playerId;
+  if (env.event.type === "join") {
+    return env.authContext.sub === env.event.playerId;
   }
 
   // if playing, make sure you only play your move

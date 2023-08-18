@@ -52,7 +52,7 @@
     "typescript": "^5.1.6"
   },
   "dependencies": {
-    "@statebacked/machine-def": "^0.3.5",
+    "@statebacked/machine-def": "^0.4.0",
     "xstate": "^4.38.2"
   }
 }
