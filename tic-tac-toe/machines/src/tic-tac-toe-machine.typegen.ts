@@ -18,6 +18,7 @@ export interface Typegen0 {
   eventsCausingGuards: {
     isGameOver: "";
     isLegalMove: "move";
+    isNewPlayer: "join";
   };
   eventsCausingServices: {};
   matchesStates:

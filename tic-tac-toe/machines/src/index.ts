@@ -20,7 +20,9 @@ export const allowRead: AllowRead<Context, AuthContext> = ({
   !context.player2Id;
 
 // users can send to their own machines if it's their turn
-export const allowWrite: AllowWrite<Context, AuthContext, Event, State> = (env) => {
+export const allowWrite: AllowWrite<Context, AuthContext, Event, State> = (
+  env
+) => {
   // you can't lie about your id
   if (env.type === "initialization") {
     return env.authContext.sub === env.context.player1Id;
@@ -42,8 +44,8 @@ export const allowWrite: AllowWrite<Context, AuthContext, Event, State> = (env) 
       return playerMark === "x";
     }
 
-    if (matchesState("Playing.Awaiting y move", env.state)) {
-      return playerMark === "y";
+    if (matchesState("Playing.Awaiting o move", env.state)) {
+      return playerMark === "o";
     }
   }
 

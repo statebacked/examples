@@ -2,7 +2,10 @@ const child_process = require("node:child_process");
 const fs = require("node:fs");
 const path = require("node:path");
 
-const machineName = process.argv[1];
+// node publish-version.js <machine-name> [--skip-migration]
+// we don't want to assume node or publish-version.js as the first arg
+const argvStart = process.argv.findIndex((arg) => arg.includes(__filename));
+const machineName = process.argv[argvStart + 1];
 
 if (!machineName) {
   console.error("usage: node publish-version.js <machine-name>");

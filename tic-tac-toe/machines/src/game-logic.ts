@@ -1,4 +1,4 @@
-export type PlayerMark = "x" | "y";
+export type PlayerMark = "x" | "o";
 export type BoardMark = PlayerMark | "";
 export type Board = [
   [BoardMark, BoardMark, BoardMark],
@@ -6,7 +6,7 @@ export type Board = [
   [BoardMark, BoardMark, BoardMark]
 ];
 
-export const getResult = (board: Board): "x" | "y" | "draw" | null => {
+export const getResult = (board: Board): "x" | "o" | "draw" | null => {
   const rowWinner = board.find((row) => allMatch(row))?.[0];
   if (rowWinner) {
     return rowWinner;

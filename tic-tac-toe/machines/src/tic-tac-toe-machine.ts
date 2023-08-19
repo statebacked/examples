@@ -1,6 +1,12 @@
 import { createMachine, assign } from "xstate";
 import { Board, PlayerMark, getResult } from "./game-logic";
 
+const initialBoard: Board = [
+  ["", "", ""],
+  ["", "", ""],
+  ["", "", ""],
+];
+
 // designed at: https://stately.ai/registry/editor/d4fab58d-2748-4950-9a22-b85b34ec27a5?machineId=d4ac7ffc-9aa0-48e2-bc79-fc2c62374b43&mode=Design
 export const ticTacToeMachine = createMachine(
   {
@@ -8,11 +14,7 @@ export const ticTacToeMachine = createMachine(
     context: {
       public: {
         winners: [] as Array<"player1" | "player2" | "draw">,
-        board: [
-          ["", "", ""],
-          ["", "", ""],
-          ["", "", ""],
-        ] as Board,
+        board: initialBoard,
         player1Mark: "x",
         player2Mark: "o",
       },
@@ -25,11 +27,9 @@ export const ticTacToeMachine = createMachine(
         on: {
           join: {
             target: "Playing",
+            cond: "isNewPlayer",
             actions: assign({
-              public: (ctx, evt) => ({
-                ...ctx.public,
-                player2Id: evt.playerId,
-              }),
+              player2Id: (_, evt) => evt.playerId,
             }),
           },
         },
@@ -58,25 +58,25 @@ export const ticTacToeMachine = createMachine(
                 cond: "isGameOver",
               },
               {
-                target: "Awaiting y move",
+                target: "Awaiting o move",
               },
             ],
           },
-          "Awaiting y move": {
+          "Awaiting o move": {
             on: {
               move: {
-                target: "Process y move",
+                target: "Process o move",
                 cond: "isLegalMove",
                 actions: assign({
                   public: (ctx, evt) => ({
                     ...ctx.public,
-                    board: updateBoard("y", ctx.public.board, evt),
+                    board: updateBoard("o", ctx.public.board, evt),
                   }),
                 }),
               },
             },
           },
-          "Process y move": {
+          "Process o move": {
             always: [
               {
                 target: "#Tic Tac Toe Machine.Game over",
@@ -91,7 +91,7 @@ export const ticTacToeMachine = createMachine(
       },
       "Game over": {
         entry: assign({
-          public: (ctx, evt) => {
+          public: (ctx) => {
             const winner = getResult(ctx.public.board);
             const winningPlayer =
               ctx.public.player1Mark === winner
@@ -111,6 +111,7 @@ export const ticTacToeMachine = createMachine(
             actions: assign({
               public: (ctx) => ({
                 ...ctx.public,
+                board: initialBoard,
                 player1Mark: ctx.public.player2Mark,
                 player2Mark: ctx.public.player1Mark,
               }),
@@ -121,7 +122,7 @@ export const ticTacToeMachine = createMachine(
     },
     schema: {
       events: {} as
-        | { type: "move"; row: 0 | 1 | 2; column: 0 | 1 | 2 }
+        | { type: "move"; row: number; column: number }
         | { type: "Play again" }
         | { type: "join"; playerId: string },
     },
@@ -133,6 +134,7 @@ export const ticTacToeMachine = createMachine(
     actions: {},
     services: {},
     guards: {
+      isNewPlayer: (ctx, evt) => ctx.player1Id !== evt.playerId,
       isGameOver: (context) => getResult(context.public.board) !== null,
       isLegalMove: (context, event) => {
         const { row, column } = event;
