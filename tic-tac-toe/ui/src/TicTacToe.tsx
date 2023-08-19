@@ -6,6 +6,7 @@ import { ticTacToeMachine } from "../../machines/src/tic-tac-toe-machine";
 import { getAuth, getUserId } from "./auth";
 import { useParams } from "react-router-dom";
 import { useEffect } from "react";
+import styles from "./TicTacToe.module.css";
 
 // we previously set up our token exchange by running:
 //
@@ -73,9 +74,12 @@ function Game({ actor }: { actor: Actor<Event, State, OnlyPublicContext> }) {
     return (
       <div>
         <h2>Waiting for player 2</h2>
-        <p>Send a friend this link or open a new browser tab to play yourself: {window.location.href}</p>
+        <p>
+          Send a friend this link or open a new browser tab to play yourself:{" "}
+          {window.location.href}
+        </p>
       </div>
-    )
+    );
   }
 
   return (
@@ -108,7 +112,7 @@ function GameBoard({
   send: (event: Event) => void;
 }) {
   return (
-    <table>
+    <table className={styles.gameBoard}>
       <tbody>
         {state.context.public.board.map((row, rowIdx) => (
           <tr key={rowIdx}>
