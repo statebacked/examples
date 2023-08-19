@@ -67,6 +67,16 @@ function Game({ actor }: { actor: Actor<Event, State, OnlyPublicContext> }) {
   const [state, send] = useActor(actor);
   const arePlaying = state.matches("Playing");
   const isGameOver = state.matches("Game over");
+  const waitingForPlayer2 = state.matches("Awaiting player 2");
+
+  if (waitingForPlayer2) {
+    return (
+      <div>
+        <h2>Waiting for player 2</h2>
+        <p>Send a friend this link or open a new browser tab to play yourself: {window.location.href}</p>
+      </div>
+    )
+  }
 
   return (
     <div>
