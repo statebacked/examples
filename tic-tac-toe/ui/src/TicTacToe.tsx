@@ -99,6 +99,14 @@ function Game({
   ).length;
   const draws = state.context.public.winners.length - ownWins - opponentWins;
 
+  const getWinner = (winner: "player1" | "player2" | "draw") => {
+    if (winner === "draw") {
+      return "Draw";
+    }
+
+    return winner === player ? "You won" : "You lost";
+  };
+
   if (waitingForPlayer2) {
     return (
       <div>
@@ -114,7 +122,12 @@ function Game({
   return (
     <div>
       <div>
-        Wins: {ownWins} Draws: {draws} Losses: {opponentWins}
+        <p>
+          Wins: {ownWins} Draws: {draws} Losses: {opponentWins}
+        </p>
+        <p>
+          You are playing as: <strong>{mark}</strong>
+        </p>
         {arePlaying ? (
           <>
             {(state.matches("Playing.Awaiting x move") && mark === "x") ||
@@ -127,10 +140,11 @@ function Game({
           </>
         ) : isGameOver ? (
           <div>
-            <h3>Game over!</h3>
+            <h3>{getWinner(state.context.public.winners.slice(-1)[0])}!</h3>
             <button onClick={() => send({ type: "Play again" })}>
               Play again
             </button>
+            <GameBoard readonly state={state} send={send} />
           </div>
         ) : null}
       </div>
@@ -141,9 +155,11 @@ function Game({
 function GameBoard({
   state,
   send,
+  readonly,
 }: {
   state: ActorState<State, OnlyPublicContext>;
   send: (event: Event) => void;
+  readonly?: boolean;
 }) {
   return (
     <table className={styles.gameBoard}>
@@ -152,7 +168,7 @@ function GameBoard({
           <tr key={rowIdx}>
             {row.map((cell, cellIdx) => (
               <td key={cellIdx}>
-                {cell ? (
+                {cell || readonly ? (
                   <div>{cell}</div>
                 ) : (
                   <button
