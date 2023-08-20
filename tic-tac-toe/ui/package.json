@@ -11,7 +11,7 @@
     "prettier": "prettier --write src"
   },
   "dependencies": {
-    "@statebacked/client": "^0.1.25",
+    "@statebacked/client": "^0.1.26",
     "@xstate/react": "^3.2.2",
     "jose": "^4.14.4",
     "react": "^18.2.0",
