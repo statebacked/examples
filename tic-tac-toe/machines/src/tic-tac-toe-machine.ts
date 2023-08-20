@@ -27,17 +27,13 @@ export const ticTacToeMachine = createMachine(
     states: {
       "Set player 1 ID": {
         invoke: {
-          src: (ctx) =>
-            crypto.subtle.digest(
-              "SHA-256",
-              new TextEncoder().encode(ctx.player1Id)
-            ),
+          src: (ctx) => hashPlayerId(ctx.player1Id),
           onDone: {
             target: "Awaiting player 2",
             actions: assign({
               public: (ctx, evt) => ({
                 ...ctx.public,
-                hashedPlayer1Id: btoa(evt.data),
+                hashedPlayer1Id: evt.data,
               }),
             }),
           },
@@ -56,17 +52,13 @@ export const ticTacToeMachine = createMachine(
       },
       "Set player 2 ID": {
         invoke: {
-          src: (ctx) =>
-            crypto.subtle.digest(
-              "SHA-256",
-              new TextEncoder().encode(ctx.player2Id)
-            ),
+          src: (ctx) => hashPlayerId(ctx.player2Id),
           onDone: {
             target: "Playing",
             actions: assign({
               public: (ctx, evt) => ({
                 ...ctx.public,
-                hashedPlayer2Id: btoa(evt.data),
+                hashedPlayer2Id: evt.data,
               }),
             }),
           },
@@ -198,3 +190,8 @@ const updateBoard = (
   newBoard[evt.row][evt.column] = player;
   return newBoard as Board;
 };
+
+const hashPlayerId = (playerId: string) =>
+  crypto.subtle
+    .digest("SHA-256", new TextEncoder().encode(playerId))
+    .then((hash) => btoa(String.fromCharCode(...new Uint8Array(hash))));

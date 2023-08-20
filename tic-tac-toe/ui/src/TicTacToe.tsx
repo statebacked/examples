@@ -5,7 +5,7 @@ import { ContextFrom, StateValueFrom } from "xstate";
 import { ticTacToeMachine } from "../../machines/src/tic-tac-toe-machine";
 import { getAuth, getUserId } from "./auth";
 import { useParams } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import styles from "./TicTacToe.module.css";
 
 // we previously set up our token exchange by running:
@@ -48,8 +48,15 @@ export default function TicTacToe() {
     gameId!,
     () => ({ player1Id: getUserId() }),
   );
+  const [hashedUserId, setHashedUserId] = useState("");
 
   useEffect(() => {
+    crypto.subtle
+      .digest("SHA-256", new TextEncoder().encode(getUserId()))
+      .then((hash) => {
+        setHashedUserId(btoa(String.fromCharCode(...new Uint8Array(hash))));
+      });
+
     if (!actor) {
       return;
     }
@@ -61,14 +68,36 @@ export default function TicTacToe() {
     return <div>Loading...</div>;
   }
 
-  return <Game actor={actor} />;
+  return <Game actor={actor} hashedUserId={hashedUserId} />;
 }
 
-function Game({ actor }: { actor: Actor<Event, State, OnlyPublicContext> }) {
+function Game({
+  actor,
+  hashedUserId,
+}: {
+  actor: Actor<Event, State, OnlyPublicContext>;
+  hashedUserId: string;
+}) {
   const [state, send] = useActor(actor);
   const arePlaying = state.matches("Playing");
   const isGameOver = state.matches("Game over");
   const waitingForPlayer2 = state.matches("Awaiting player 2");
+  const player =
+    hashedUserId === state.context.public.hashedPlayer1Id
+      ? "player1"
+      : "player2";
+  const mark =
+    player === "player1"
+      ? state.context.public.player1Mark
+      : state.context.public.player2Mark;
+
+  const ownWins = state.context.public.winners.filter(
+    (winner) => winner === player,
+  ).length;
+  const opponentWins = state.context.public.winners.filter(
+    (winner) => winner !== player,
+  ).length;
+  const draws = state.context.public.winners.length - ownWins - opponentWins;
 
   if (waitingForPlayer2) {
     return (
@@ -85,12 +114,17 @@ function Game({ actor }: { actor: Actor<Event, State, OnlyPublicContext> }) {
   return (
     <div>
       <div>
-        Scoreboard:{" "}
-        {state.context.public.winners.map((winner, idx) => (
-          <span key={idx}>{winner}</span>
-        ))}
+        Wins: {ownWins} Draws: {draws} Losses: {opponentWins}
         {arePlaying ? (
-          <GameBoard state={state} send={send} />
+          <>
+            {(state.matches("Playing.Awaiting x move") && mark === "x") ||
+            (state.matches("Playing.Awaiting o move") && mark === "o") ? (
+              <h2>Your move</h2>
+            ) : (
+              <h2>Waiting for your opponent's move...</h2>
+            )}
+            <GameBoard state={state} send={send} />
+          </>
         ) : isGameOver ? (
           <div>
             <h3>Game over!</h3>
