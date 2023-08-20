@@ -95,7 +95,7 @@ function Game({
     (winner) => winner === player,
   ).length;
   const opponentWins = state.context.public.winners.filter(
-    (winner) => winner !== player,
+    (winner) => winner !== player && winner !== "draw",
   ).length;
   const draws = state.context.public.winners.length - ownWins - opponentWins;
 
