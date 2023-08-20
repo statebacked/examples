@@ -17,19 +17,57 @@ export const ticTacToeMachine = createMachine(
         board: initialBoard,
         player1Mark: "x",
         player2Mark: "o",
+        hashedPlayer1Id: "",
+        hashedPlayer2Id: "",
       },
       player1Id: "",
       player2Id: "",
     },
-    initial: "Awaiting player 2",
+    initial: "Set player 1 ID",
     states: {
+      "Set player 1 ID": {
+        invoke: {
+          src: (ctx) =>
+            crypto.subtle.digest(
+              "SHA-256",
+              new TextEncoder().encode(ctx.player1Id)
+            ),
+          onDone: {
+            target: "Awaiting player 2",
+            actions: assign({
+              public: (ctx, evt) => ({
+                ...ctx.public,
+                hashedPlayer1Id: btoa(evt.data),
+              }),
+            }),
+          },
+        },
+      },
       "Awaiting player 2": {
         on: {
           join: {
-            target: "Playing",
+            target: "Set player 2 ID",
             cond: "isNewPlayer",
             actions: assign({
               player2Id: (_, evt) => evt.playerId,
+            }),
+          },
+        },
+      },
+      "Set player 2 ID": {
+        invoke: {
+          src: (ctx) =>
+            crypto.subtle.digest(
+              "SHA-256",
+              new TextEncoder().encode(ctx.player2Id)
+            ),
+          onDone: {
+            target: "Playing",
+            actions: assign({
+              public: (ctx, evt) => ({
+                ...ctx.public,
+                hashedPlayer2Id: btoa(evt.data),
+              }),
             }),
           },
         },

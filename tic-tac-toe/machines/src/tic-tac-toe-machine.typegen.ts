@@ -25,16 +25,18 @@ export interface Typegen0 {
     | "Awaiting player 2"
     | "Game over"
     | "Playing"
+    | "Playing.Awaiting o move"
     | "Playing.Awaiting x move"
-    | "Playing.Awaiting y move"
+    | "Playing.Process o move"
     | "Playing.Process x move"
-    | "Playing.Process y move"
+    | "Set player 1 ID"
+    | "Set player 2 ID"
     | {
         Playing?:
+          | "Awaiting o move"
           | "Awaiting x move"
-          | "Awaiting y move"
-          | "Process x move"
-          | "Process y move";
+          | "Process o move"
+          | "Process x move";
       };
   tags: never;
 }
