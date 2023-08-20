@@ -2,7 +2,7 @@ import { Actor, ActorState, StateBackedClient } from "@statebacked/client";
 import { useMachine } from "./hooks/useMachine";
 import { useActor } from "@xstate/react";
 import { ContextFrom, StateValueFrom } from "xstate";
-import { ticTacToeMachine } from "../../machines/src/tic-tac-toe-machine";
+import { ticTacToeMachine } from "../../statebacked/src/tic-tac-toe-machine";
 import { getAuth, getUserId } from "./auth";
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
