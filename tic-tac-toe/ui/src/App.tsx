@@ -25,6 +25,13 @@ function CreateGame() {
       <h2>
         Powered by <a href="https://statebacked.dev">State Backed</a>
       </h2>
+      <p>
+        Check out the walkthrough of the code behind this example{" "}
+        <a href="https://docs.statebacked.dev/docs/examples/tic-tac-toe">
+          here
+        </a>
+        !
+      </p>
       <button
         onClick={() => {
           navigate(`/game/${crypto.randomUUID()}`);
