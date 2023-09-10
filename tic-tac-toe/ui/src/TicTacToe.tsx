@@ -3,33 +3,20 @@ import { useStateBackedMachine } from "@statebacked/react";
 import { useActor } from "@xstate/react";
 import { ContextFrom, StateValueFrom } from "xstate";
 import { ticTacToeMachine } from "../../statebacked/src/tic-tac-toe-machine";
-import { getAuth, getUserId } from "./auth";
+import { getUserId } from "./auth";
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import styles from "./TicTacToe.module.css";
 
-// we previously set up our token exchange by running:
-//
-// create a state backed key
-// smply keys create --name example-key --use production
-//
-// create a token provider
-// smply token-providers upsert --key sbk_our-key --mapping '{"sub.$": "$.sub", "email.$": "$.email"}' --service example-onboarding
-//
-// create an identity provider
-// smply identity-providers upsert-supabase --project tfktuqdsyacioqtgesey --secret ==supabase-jwt-secret== --mapping '{"sub.$": "$.sub", "email.$": "$.email"}'
-//
-// now, we can exchange our supabase access token for a state backed access token automatically
+// we use anonymous sessions for our simple game.
+// 0 setup required. all organizations enable anonymous access by default.
 const client = new StateBackedClient({
-  async identityProviderToken() {
-    const token = await getAuth();
-    if (!token) {
-      throw new Error("No access token");
-    }
-    return token;
+  anonymous: {
+    orgId: "org_uHvZHpF4STWvMg8BKVCUTg",
+    getSessionId() {
+      return getUserId();
+    },
   },
-  orgId: "org_uHvZHpF4STWvMg8BKVCUTg",
-  tokenProviderService: "example-tic-tac-toe",
 });
 
 type Event = Exclude<
@@ -42,13 +29,16 @@ type OnlyPublicContext = Context["public"];
 
 export default function TicTacToe() {
   const { gameId } = useParams();
-  const { actor } = useStateBackedMachine<Event, State, Context>(client, {
-    machineName: "tic-tac-toe-example",
-    instanceName: gameId!,
-    getInitialContext() {
-      return { player1Id: getUserId() };
+  const { actor, error } = useStateBackedMachine<Event, State, Context>(
+    client,
+    {
+      machineName: "tic-tac-toe-example",
+      instanceName: gameId!,
+      getInitialContext() {
+        return { player1Id: getUserId() };
+      },
     },
-  });
+  );
   const [hashedUserId, setHashedUserId] = useState("");
 
   useEffect(() => {
@@ -64,6 +54,10 @@ export default function TicTacToe() {
 
     actor.send({ type: "join", playerId: getUserId() });
   }, [actor]);
+
+  if (error && !actor) {
+    return <div>Error: {error.message}</div>;
+  }
 
   if (!actor) {
     return <div>Loading...</div>;
