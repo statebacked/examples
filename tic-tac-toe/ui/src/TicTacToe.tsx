@@ -1,5 +1,5 @@
 import { Actor, ActorState, StateBackedClient } from "@statebacked/client";
-import { useMachine } from "./hooks/useMachine";
+import { useStateBackedMachine } from "@statebacked/react";
 import { useActor } from "@xstate/react";
 import { ContextFrom, StateValueFrom } from "xstate";
 import { ticTacToeMachine } from "../../statebacked/src/tic-tac-toe-machine";
@@ -42,12 +42,13 @@ type OnlyPublicContext = Context["public"];
 
 export default function TicTacToe() {
   const { gameId } = useParams();
-  const actor = useMachine<Event, State, Context>(
-    client,
-    "tic-tac-toe-example",
-    gameId!,
-    () => ({ player1Id: getUserId() }),
-  );
+  const { actor } = useStateBackedMachine<Event, State, Context>(client, {
+    machineName: "tic-tac-toe-example",
+    instanceName: gameId!,
+    getInitialContext() {
+      return { player1Id: getUserId() };
+    },
+  });
   const [hashedUserId, setHashedUserId] = useState("");
 
   useEffect(() => {
