@@ -2,7 +2,7 @@ import type {
   AllowRead,
   AllowWrite,
   AnonymousAuthContext,
-} from "@statebacked/machine-def";
+} from "@statebacked/machine";
 import type { ContextFrom, EventFrom, StateValueFrom } from "xstate";
 import { matchesState } from "xstate/lib/utils";
 import { ticTacToeMachine } from "./tic-tac-toe-machine";

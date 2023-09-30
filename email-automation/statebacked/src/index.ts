@@ -1,4 +1,4 @@
-import type { AllowRead, AllowWrite } from "@statebacked/machine-def";
+import type { AllowRead, AllowWrite } from "@statebacked/machine";
 import type { ContextFrom } from "xstate";
 import { emailAutomationMachine } from "./machines/email-automation";
 import { AuthContext } from "./auth-context";

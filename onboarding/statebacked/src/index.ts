@@ -1,4 +1,4 @@
-import type { AllowRead, AllowWrite } from "@statebacked/machine-def";
+import type { AllowRead, AllowWrite } from "@statebacked/machine";
 import type { ContextFrom } from "xstate";
 import { onboardingMachine } from "./machines/onboarding";
 
